@@ -1,26 +1,26 @@
 """this script simulates a sequence of pretty complex events including
 consumers, companies, factories and economics decision makings"""
 
+import mesa
+
 class Market():
 
     """this class represents a specific market (e.g., Car industry, Tech industry...)"""
-    class Consumer():
-
+    class Consumer(mesa.Agent):
         """this class represents the consumers"""
 
-        def __init__(self) -> None:
-            pass
+        def __init__(self, model, wealth):
+            super().__init__(model)
+            self.wealth = wealth
 
-    class Company():
-
+    class Company(mesa.Agent):
         """this class represents companies"""
 
-        def __init__(self) -> None:
-            pass
+        def __init__(self, model):
+            super().__init__(model)
 
-        class Factory():
-
+        class Factory(mesa.Agent):
             """this class represents manufacturing factories"""
 
-            def __init__(self) -> None:
-                pass
+            def __init__(self, model):
+                super().__init__(model)
