@@ -1,23 +1,26 @@
 """this script simulates a sequence of pretty complex events including
 consumers, companies, factories and economics decision makings"""
 
-class Consumer():
+class Market():
 
-    """this class represents the consumers"""
+    """this class represents a specific market (e.g., Car industry, Tech industry...)"""
+    class Consumer():
 
-    def __init__(self) -> None:
-        pass
+        """this class represents the consumers"""
 
-class Company():
+        def __init__(self) -> None:
+            pass
 
-    """this class represents companies"""
+    class Company():
 
-    def __init__(self) -> None:
-        pass
+        """this class represents companies"""
 
-class Factory():
+        def __init__(self) -> None:
+            pass
 
-    """this class represents manufacturing factories"""
+        class Factory():
 
-    def __init__(self) -> None:
-        pass
+            """this class represents manufacturing factories"""
+
+            def __init__(self) -> None:
+                pass
