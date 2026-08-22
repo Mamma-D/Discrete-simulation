@@ -6,10 +6,21 @@ import mesa
 class Consumer(mesa.Agent):
     """this class represents the consumers"""
 
-    def __init__(self, model, wealth):
+    def __init__(self, model, salary):
         super().__init__(model)
-        self.wealth = wealth
+        self.salary = salary
+        self.wealth = salary
 
+    def step(self):
+        """this method is for putting all actions a consumer does in a week"""
+
+        if self.model.time % 4:
+            self.get_paid(self.salary)
+
+    def get_paid(self, salary):
+        """this method adds the monthly payment to the consumer's wealth"""
+
+        self.wealth += salary
 class Company(mesa.Agent):
     """this class represents companies"""
 
