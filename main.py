@@ -12,7 +12,7 @@ class Consumer(mesa.Agent):
         self.salary = salary
         self.mcp = mcp
 
-    def step(self):
+    def action(self):
         """this method is for putting all actions a consumer does in a week"""
 
         if self.model.time % 4 == 0:
@@ -59,7 +59,7 @@ class TheModel(mesa.Model):
 
     def step(self):
 
-        self.agents.shuffle_do("step")
+        self.agents.shuffle_do("action")
 
 
 def generate_number(category: dict, index: str):
