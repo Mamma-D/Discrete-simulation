@@ -52,7 +52,7 @@ class TheModel(mesa.Model):
             person = Consumer(
                 self,
                 salary=generators['salary'].next(),
-                mcp=generators['MCP'].next()
+                mcp=generators['MPC'].next()
                 )
 
             self.agents.add(person)
