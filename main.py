@@ -22,6 +22,7 @@ class Consumer(mesa.Agent):
         """this method adds the monthly payment to the consumer's wealth"""
 
         self.wealth += salary
+        print(f"person {self.unique_id} got paid {salary}$")
 
     def __repr__(self) -> str:
         return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mpc}, salary={self.salary})"
