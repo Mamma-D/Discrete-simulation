@@ -40,7 +40,7 @@ class Company(mesa.Agent):
 class TheModel(mesa.Model):
     """this class is a initial model"""
 
-    def __init__(self, consumers, companies):
+    def __init__(self, consumers):
         super().__init__()
 
         generators = {}
