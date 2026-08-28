@@ -67,20 +67,21 @@ class TheModel(mesa.Model):
 
 def generate_number(category: dict, index: str):
 
-    for proportion, ranges in category['indexes'][index].items():
+    while True:
+        for proportion, ranges in category['indexes'][index].items():
 
-        percentage = proportion / len(ranges) if len(ranges) > 0 else proportion
+            percentage = proportion / len(ranges) if len(ranges) > 0 else proportion
 
-        this_many = int(category['population'] * percentage)
+            this_many = int(category['population'] * percentage)
 
-        if isinstance(ranges[0], (int, float)):
-
-            for _ in range(this_many):
-                yield random.uniform(ranges[0], ranges[1])
-
-        else:
-
-            for spec_range in ranges:
+            if isinstance(ranges[0], (int, float)):
 
                 for _ in range(this_many):
-                    yield  random.uniform(spec_range[0], spec_range[1])
+                    yield round(random.uniform(ranges[0], ranges[1]), 2)
+
+            else:
+
+                for spec_range in ranges:
+
+                    for _ in range(this_many):
+                        yield  round(random.uniform(spec_range[0], spec_range[1]), 2)
