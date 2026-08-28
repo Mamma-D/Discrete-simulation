@@ -6,11 +6,11 @@ import random
 class Consumer(mesa.Agent):
     """this class represents the consumers"""
 
-    def __init__(self, model, salary, mcp):
+    def __init__(self, model, salary, mpc):
         super().__init__(model)
         self.wealth = salary
         self.salary = salary
-        self.mcp = mcp
+        self.mpc = mpc
 
     def action(self):
         """this method is for putting all actions a consumer does in a week"""
@@ -24,7 +24,7 @@ class Consumer(mesa.Agent):
         self.wealth += salary
 
     def __repr__(self) -> str:
-        return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mcp}, salary={self.salary})"
+        return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mpc}, salary={self.salary})"
 class Company(mesa.Agent):
     """this class represents companies"""
 
@@ -55,7 +55,7 @@ class TheModel(mesa.Model):
             person = Consumer(
                 self,
                 salary=next(generators['salary']),
-                mcp=next(generators['MPC'])
+                mpc=next(generators['MPC'])
                 )
 
             self.agents.add(person)
