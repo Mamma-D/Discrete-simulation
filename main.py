@@ -15,7 +15,7 @@ class Consumer(mesa.Agent):
     def step(self):
         """this method is for putting all actions a consumer does in a week"""
 
-        if self.model.time % 4:
+        if self.model.time % 4 == 0:
             self.get_paid(self.salary)
 
     def get_paid(self, salary):
