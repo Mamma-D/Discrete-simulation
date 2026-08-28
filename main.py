@@ -44,6 +44,8 @@ class TheModel(mesa.Model):
     def __init__(self, consumers):
         super().__init__()
 
+        self.datacollector = mesa.DataCollector(agent_reporters={"Wealth": "wealth"})
+
         generators = {}
         for index_name in consumers['indexes'].keys():
 
@@ -63,6 +65,7 @@ class TheModel(mesa.Model):
 
     def step(self):
 
+        self.datacollector.collect(self)
         self.agents.shuffle_do("action")
 
 
