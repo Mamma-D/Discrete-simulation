@@ -2,7 +2,7 @@
 consumers, companies, factories and economics decision makings"""
 
 import mesa
-
+import random
 class Consumer(mesa.Agent):
     """this class represents the consumers"""
 
@@ -33,3 +33,51 @@ class Company(mesa.Agent):
 
         def __init__(self, model):
             super().__init__(model)
+
+class TheModel(mesa.Model):
+    """this class is a initial model"""
+
+    def __init__(self, consumers, companies):
+        super().__init__()
+
+        generators = {}
+        for index_name in consumers['indexes'].keys():
+
+            index_generator = generate_number(consumers, index_name)
+
+            generators[index_name] = index_generator
+
+        for _ in range(consumers['population']):
+
+            person = Consumer(
+                self,
+                salary=generators['salary'].next(),
+                mcp=generators['MCP'].next()
+                )
+
+            self.agents.add(person)
+
+    def step(self):
+
+        self.agents.shuffle_do("step")
+
+
+def generate_number(category: dict, index: str):
+
+    for proportion, ranges in category['indexes'][index].items():
+
+        percentage = proportion / len(ranges) if len(ranges) > 0 else proportion
+
+        this_many = int(category['population'] * percentage)
+
+        if isinstance(ranges[0], (int, float)):
+
+            for _ in range(this_many):
+                yield random.uniform(ranges[0], ranges[1])
+
+        else:
+
+            for spec_range in ranges:
+
+                for _ in range(this_many):
+                    yield  random.uniform(spec_range[0], spec_range[1])
