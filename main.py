@@ -11,6 +11,8 @@ class Consumer(mesa.Agent):
         self.wealth = salary
         self.salary = salary
         self.mpc = mpc
+        self.essentials = round(250 + (self.salary * 0.25), 2)
+        self.savings = 0
 
     def action(self):
         """this method is for putting all actions a consumer does in a week"""
@@ -21,8 +23,25 @@ class Consumer(mesa.Agent):
     def get_paid(self, salary):
         """this method adds the monthly payment to the consumer's wealth"""
 
-        self.wealth += salary
-        print(f"person {self.unique_id} got paid {salary}$")
+        print(f"{self.unique_id} got paid {salary}$")
+
+        takehome_salary = salary - self.essentials
+        print(f"{self.unique_id} spent {self.essentials}$ on essentials")
+
+        remaining_salary = round(self.save(takehome_salary), 2)
+
+        self.wealth += remaining_salary
+        print(f"{self.unique_id}'s wealth increased by {remaining_salary}$")
+
+    def save(self, received_salary):
+        """this method mimics saving money in an account"""
+
+        saving = round((1 - self.mpc) * received_salary, 2)
+
+        self.savings += saving
+        print(f"{self.unique_id} saved {saving}$")
+
+        return received_salary - saving
 
     def __repr__(self) -> str:
         return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mpc}, salary={self.salary})"
