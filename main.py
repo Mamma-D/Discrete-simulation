@@ -1,8 +1,8 @@
 """this script simulates a sequence of pretty complex events including
 consumers, companies, factories and economics decision makings"""
 
-import mesa
 import random
+import mesa
 import pandas as pd
 
 class Consumer(mesa.Agent):
