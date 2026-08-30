@@ -3,6 +3,8 @@ consumers, companies, factories and economics decision makings"""
 
 import mesa
 import random
+
+
 class Consumer(mesa.Agent):
     """this class represents the consumers"""
 
