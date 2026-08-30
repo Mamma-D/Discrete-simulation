@@ -15,6 +15,8 @@ class Consumer(mesa.Agent):
         self.mpc = mpc
         self.essentials = round(250 + (self.salary * 0.25), 2)
         self.savings = 0
+        self.position = {}
+        self.live_utile = 0
 
     def action(self):
         """this method is for putting all actions a consumer does in a week"""
@@ -45,10 +47,40 @@ class Consumer(mesa.Agent):
 
         return round((received_salary - saving), 2)
 
+    def consume(self):
+        """this method mimics spending money on goods and services"""
+
+        while self.live_utile < 9:
+
+            companies = self.model.agents.get_type(Company)
+            companies_count = len(companies)
+
+            if companies_count > 0:
+                if companies_count == 2:
+
+                    pos = round(random.uniform(0.00,1.00), 2)
+                    self.position['market'] = pos
+
+                    cost_for_firm_1 = companies[0].price + companies[0].differ * (pos)**2
+                    cost_for_firm_2 = companies[1].price + companies[1].differ * (1 - pos)**2
+
+                    if cost_for_firm_1 < cost_for_firm_2:
+
+                        chosen_company = companies[0]
+
+                        self.purchase(self, company_seller)
+
+                        self.live_utile += pos * chosen_company[0].price
+
+    def purchase(self):
+
     def __repr__(self) -> str:
         return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mpc}, salary={self.salary})"
 class Company(mesa.Agent):
     """this class represents companies"""
+
+    #todo Have to add a impact factor that determines how much the good that this sells impacts the consumer's utile
+    #todo Have to add price attribute
 
     def __init__(self, model):
         super().__init__(model)
