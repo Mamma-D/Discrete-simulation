@@ -30,7 +30,7 @@ class Consumer(mesa.Agent):
         takehome_salary = salary - self.essentials
         print(f"{self.unique_id} spent {self.essentials}$ on essentials")
 
-        remaining_salary = round(self.save(takehome_salary), 2)
+        remaining_salary = self.save(takehome_salary)
 
         self.wealth += remaining_salary
         print(f"{self.unique_id}'s wealth increased by {remaining_salary}$")
@@ -43,7 +43,7 @@ class Consumer(mesa.Agent):
         self.savings += saving
         print(f"{self.unique_id} saved {saving}$")
 
-        return received_salary - saving
+        return round((received_salary - saving), 2)
 
     def __repr__(self) -> str:
         return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mpc}, salary={self.salary})"
