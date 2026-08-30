@@ -110,9 +110,15 @@ class Company(mesa.Agent):
     def __init__(self, model, given_differ):
         super().__init__(model)
 
+        #todo Need a way to determine a companies starting wealth, maybe just pass in a random amount
+        #todo of starting investment
         self.wealth = 0
+
         self.differ = given_differ
+    
+        #todo Need to make a "set_price" method that sets price based on other companies...
         self.price = 0
+
         self.transactions = pd.DataFrame({'consumer_id':[], 'price':[], 'time':[]}, index=[0])
 
     def add_transaction(self, consumer):
@@ -130,6 +136,7 @@ class Company(mesa.Agent):
         )
 
 
+#todo Need to work on factory class, maybe even abandon it for now, for simplicity 
     class Factory(mesa.Agent):
         """this class represents manufacturing factories"""
 
