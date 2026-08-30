@@ -3,7 +3,7 @@ consumers, companies, factories and economics decision makings"""
 
 import mesa
 import random
-
+import pandas as pd
 
 class Consumer(mesa.Agent):
     """this class represents the consumers"""
@@ -72,18 +72,41 @@ class Consumer(mesa.Agent):
 
                         self.live_utile += pos * chosen_company[0].price
 
-    def purchase(self):
+
+    def purchase(self, company_seller):
+        """this method mimics the purchase of a good or service from a company"""
+
+        self.wealth -= company_seller.price
+        company_seller.add_transaction(self)
+
 
     def __repr__(self) -> str:
         return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mpc}, salary={self.salary})"
 class Company(mesa.Agent):
     """this class represents companies"""
 
-    #todo Have to add a impact factor that determines how much the good that this sells impacts the consumer's utile
-    #todo Have to add price attribute
-
-    def __init__(self, model):
+    def __init__(self, model, given_differ):
         super().__init__(model)
+
+        self.wealth = 0
+        self.differ = given_differ
+        self.price = 0
+        self.transactions = pd.DataFrame({'consumer_id':[], 'price':[], 'time':[]}, index=[0])
+
+    def add_transaction(self, consumer):
+        """this method adds the transaction to the company's wealth"""
+
+        self.wealth += self.price
+        self.transactions = pd.concat(
+            [
+                self.transactions,
+                pd.DataFrame([
+                    {'consumer_id': consumer.unique_id, 'price': self.price, 'time': self.model.time}
+                ])
+            ],
+            ignore_index=True,
+        )
+
 
     class Factory(mesa.Agent):
         """this class represents manufacturing factories"""
