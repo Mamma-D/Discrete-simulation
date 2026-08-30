@@ -65,7 +65,7 @@ class TheModel(mesa.Model):
     def __init__(self, consumers):
         super().__init__()
 
-        self.datacollector = mesa.DataCollector(agent_reporters={"Wealth": "wealth"})
+        self.datacollector = mesa.DataCollector(agent_reporters={"Wealth": "wealth", "Savings":"savings"})
 
         generators = {}
         for index_name in consumers['indexes'].keys():
