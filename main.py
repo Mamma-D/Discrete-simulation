@@ -50,28 +50,40 @@ class Consumer(mesa.Agent):
     def consume(self):
         """this method mimics spending money on goods and services"""
 
+        #todo Need a way to check if the person has enough money to even begin the consume process (i thought of checking with the 
+        # cheapest item being sold but that takes long)
+        # maybe it doesn't even need a check because the consumer will just not be able to buy anything if they don't have enough money 
+
+
+        # Added a condition to keep consume 
         while self.live_utile < 9:
+
+            # Checking available companies in the market (don't have multiple markets yet)
 
             companies = self.model.agents.get_type(Company)
             companies_count = len(companies)
 
+            #* If it's a two company market, the consumer will choose the company with the lowest cost for them to buy from
             if companies_count > 0:
                 if companies_count == 2:
 
                     pos = round(random.uniform(0.00,1.00), 2)
                     self.position['market'] = pos
 
+                    #* Linear city model in Game Theory to determine which company to buy from
                     cost_for_firm_1 = companies[0].price + companies[0].differ * (pos)**2
                     cost_for_firm_2 = companies[1].price + companies[1].differ * (1 - pos)**2
 
-                    if cost_for_firm_1 < cost_for_firm_2:
+                    if cost_for_firm_1 < cost_for_firm_2 and self.wealth >= cost_for_firm_1:
 
                         chosen_company = companies[0]
 
-                        self.purchase(self, company_seller)
+                        self.purchase(chosen_company)
 
-                        self.live_utile += pos * chosen_company[0].price
+                        self.utile(chosen_company, pos)
 
+                    else:
+                        break
 
     def purchase(self, company_seller):
         """this method mimics the purchase of a good or service from a company"""
@@ -79,6 +91,16 @@ class Consumer(mesa.Agent):
         self.wealth -= company_seller.price
         company_seller.add_transaction(self)
 
+    def utile(self, company_seller, pos):
+        """this method calculates and adds the utility of a good or service purchased from a company"""
+
+        price = company_seller.price
+
+        good_utility = int(round(pos * price, 0))
+
+        coefficient = (lambda x: -0.07 * x + 0.8)
+
+        self.live_utile += good_utility * coefficient(self.live_utile)
 
     def __repr__(self) -> str:
         return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mpc}, salary={self.salary})"
