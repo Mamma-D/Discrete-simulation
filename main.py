@@ -2,7 +2,6 @@
 consumers, companies, factories and economics decision makings"""
 
 import random
-import re
 import mesa
 import pandas as pd
 import sympy as sp
