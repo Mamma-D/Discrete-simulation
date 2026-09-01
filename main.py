@@ -207,7 +207,7 @@ class Company(mesa.Agent):
 class TheModel(mesa.Model):
     """this class is a initial model"""
 
-    def __init__(self, consumers):
+    def __init__(self, consumers, companies):
         super().__init__()
 
         self.datacollector = mesa.DataCollector(
@@ -217,6 +217,7 @@ class TheModel(mesa.Model):
             }
         )
 
+        #* Creating the consumers in the model
         generators = {}
         for index_name in consumers['indexes'].keys():
 
@@ -234,10 +235,23 @@ class TheModel(mesa.Model):
 
             self.agents.add(person)
 
+        #* Creating the companies in the model
+
+        for _ in range(companies['population']):
+
+            company = Company(
+                self,
+                given_differ=companies['indexes']['differentiation']
+                )
+
+            self.agents.add(company)
+
     def step(self):
 
         self.datacollector.collect(self)
-        self.agents.shuffle_do("action")
+        self.agents.get_type(Company).shuffle_do("action")
+        self.agents.get_type(Consumer).shuffle_do("action")
+
 
 
 def generate_number(category: dict, index: str):
