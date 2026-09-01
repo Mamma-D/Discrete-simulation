@@ -210,7 +210,12 @@ class TheModel(mesa.Model):
     def __init__(self, consumers):
         super().__init__()
 
-        self.datacollector = mesa.DataCollector(agent_reporters={"Wealth": "wealth", "Savings":"savings"})
+        self.datacollector = mesa.DataCollector(
+            agenttype_reporters={
+                Consumer: {"Wealth": "wealth", "Savings": "savings"},
+                Company: {"Wealth": "wealth", "Price": "price"}
+            }
+        )
 
         generators = {}
         for index_name in consumers['indexes'].keys():
