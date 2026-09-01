@@ -57,16 +57,12 @@ class Consumer(mesa.Agent):
     def consume(self):
         """this method mimics spending money on goods and services"""
 
-        # todo Need a way to check if the person has enough money to even begin the consume process (i thought of checking with the
-        # cheapest item being sold but that takes long)
-        # maybe it doesn't even need a check because the consumer will just not be able to buy anything if they don't have enough money
-
         # Added a condition to keep consume
         while self.live_utile < 9:
 
             # Checking available companies in the market (don't have multiple markets yet)
 
-            companies = self.model.agents.get_type(Company)
+            companies = self.model.agents.select(agent_type=Company)
             companies_count = len(companies)
 
             # * If it's a two company market, the consumer will choose the company with the lowest cost for them to buy from
@@ -133,7 +129,6 @@ class Company(mesa.Agent):
 
         self.differ = given_differ
 
-        # todo Need to make a "set_price" method that sets price based on other companies...
         self.price = 0
 
         self.transactions = pd.DataFrame(
@@ -147,6 +142,7 @@ class Company(mesa.Agent):
 
         self.marginal_cost = sp.diff(self.total_cost, sp.Symbol("Q"))
 
+        #todo Need to make a demand curve for the company
         self.demand_curve = sp.Function("Q")(
             sp.Symbol("a"), sp.Symbol("p"), sp.Symbol("b")
         )
@@ -159,7 +155,7 @@ class Company(mesa.Agent):
     def set_price(self):
         """this method sets the price of a good or service based on the company's total cost and desired profit margin"""
 
-        companies = self.model.agents.get_type(Company)
+        companies = self.model.agents.select(agent_type=Company)
 
         if len(companies) == 2:
 
@@ -190,7 +186,7 @@ class Company(mesa.Agent):
 
         competitor = next(
             iter(
-                agent for agent in self.model.agents.get_type(Company) if agent != self
+                agent for agent in self.model.agents.select(agent_type=Company) if agent != self
             )
         )
         mrc = self.marginal_cost
@@ -285,10 +281,15 @@ class TheModel(mesa.Model):
             self.agents.add(company)
 
     def step(self):
-
+        # 1. Collect data first
         self.datacollector.collect(self)
-        self.agents.get_type(Company).shuffle_do("action")
-        self.agents.get_type(Consumer).shuffle_do("action")
+        
+        # 2. Extract and run actions for Companies
+        self.agents.select(agent_type=Company).shuffle_do("action")
+        
+        # 3. Extract and run actions for Consumers
+        self.agents.select(agent_type=Consumer).shuffle_do("action")
+
 
 
 def generate_number(category: dict, index: str):
