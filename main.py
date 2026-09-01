@@ -129,6 +129,9 @@ class Company(mesa.Agent):
 
         self.transactions = pd.DataFrame({'consumer_id':[], 'price':[], 'time':[]}, index=[0])
 
+        #todo We need a way to determine the marginal cost of a company
+        self.marginal_cost = 0  
+
     def add_transaction(self, consumer):
         """this method adds the transaction to the company's wealth"""
 
@@ -142,6 +145,30 @@ class Company(mesa.Agent):
             ],
             ignore_index=True,
         )
+
+    def set_duopoly_price(self):
+        """this method is for companies to find their optimal price based on Game Theory models"""
+
+        competitor = next(iter(agent for agent in self.model.agents.get_type(Company) if agent != self))
+        mrc = self.marginal_cost
+        mono_price = self.calculate_monopoly_price()
+        t = self.differ
+
+        if not competitor.price:
+
+            self.price = mono_price
+        elif competitor.price:
+
+            best_response = (competitor.price + t + mrc) / 2
+
+            if best_response > mono_price:
+                self.price = mono_price
+
+            elif best_response < mrc:
+                self.price = mrc
+
+            else:
+                self.price = best_response
 
 
 #todo Need to work on factory class, maybe even abandon it for now, for simplicity 
