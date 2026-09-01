@@ -137,7 +137,7 @@ class Company(mesa.Agent):
         self.price = 0
 
         self.transactions = pd.DataFrame(
-            {"consumer_id": [], "price": [], "time": []}, index=[0]
+            {"consumer_id": [], "price": [], "time": []}
         )
 
         # todo We need a way to determine the total cost function of a company
@@ -150,6 +150,20 @@ class Company(mesa.Agent):
         self.demand_curve = sp.Function("Q")(
             sp.Symbol("a"), sp.Symbol("p"), sp.Symbol("b")
         )
+
+    def action(self):
+        """this method is for putting all actions a company does in a week"""
+
+        self.set_price()
+
+    def set_price(self):
+        """this method sets the price of a good or service based on the company's total cost and desired profit margin"""
+
+        companies = self.model.agents.get_type(Company)
+
+        if len(companies) == 2:
+
+            self.price = self.find_duopoly_price()
 
     def add_transaction(self, consumer):
         """this method adds the transaction to the company's wealth"""
@@ -171,7 +185,7 @@ class Company(mesa.Agent):
             ignore_index=True,
         )
 
-    def set_duopoly_price(self):
+    def find_duopoly_price(self):
         """this method is for companies to find their optimal price based on Game Theory models"""
 
         competitor = next(
@@ -191,13 +205,15 @@ class Company(mesa.Agent):
             best_response = (competitor.price + t + mrc) / 2
 
             if best_response > mono_price:
-                self.price = mono_price
+                br = mono_price
 
             elif best_response < mrc:
-                self.price = mrc
+                br = mrc
 
             else:
-                self.price = best_response
+                br = best_response
+
+            return br
 
     def calculate_monopoly_price(self):
         """this method calculates the monopoly price for a company"""
