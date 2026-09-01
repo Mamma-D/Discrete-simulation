@@ -50,9 +50,9 @@ class Consumer(mesa.Agent):
     def consume(self):
         """this method mimics spending money on goods and services"""
 
-        #todo Need a way to check if the person has enough money to even begin the consume process (i thought of checking with the 
+        #todo Need a way to check if the person has enough money to even begin the consume process (i thought of checking with the
         # cheapest item being sold but that takes long)
-        # maybe it doesn't even need a check because the consumer will just not be able to buy anything if they don't have enough money 
+        # maybe it doesn't even need a check because the consumer will just not be able to buy anything if they don't have enough money
 
 
         # Added a condition to keep consume 
@@ -65,6 +65,8 @@ class Consumer(mesa.Agent):
 
             #* If it's a two company market, the consumer will choose the company with the lowest cost for them to buy from
             if companies_count > 0:
+
+                #* In the specific case of a two company market, this block happens
                 if companies_count == 2:
 
                     pos = round(random.uniform(0.00,1.00), 2)
