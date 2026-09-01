@@ -82,19 +82,16 @@ class Consumer(mesa.Agent):
                         companies[1].price + companies[1].differ * (1 - pos) ** 2
                     )
 
-                    if (
-                        cost_for_firm_1 < cost_for_firm_2
-                        and self.wealth >= cost_for_firm_1
-                    ):
+                    chosen_company = companies[0] if cost_for_firm_1 < cost_for_firm_2 else companies[1]
 
-                        chosen_company = companies[0]
+                    if self.wealth >= chosen_company.price:
 
                         self.purchase(chosen_company)
 
                         self.utile(chosen_company, pos)
 
-                    else:
-                        break
+            break
+
 
     def purchase(self, company_seller):
         """this method mimics the purchase of a good or service from a company"""
