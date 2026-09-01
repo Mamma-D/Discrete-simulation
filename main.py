@@ -5,6 +5,7 @@ import random
 import re
 import mesa
 import pandas as pd
+import sympy as sp
 
 class Consumer(mesa.Agent):
     """this class represents the consumers"""
@@ -129,8 +130,12 @@ class Company(mesa.Agent):
 
         self.transactions = pd.DataFrame({'consumer_id':[], 'price':[], 'time':[]}, index=[0])
 
-        #todo We need a way to determine the marginal cost of a company
-        self.marginal_cost = 0  
+        #todo We need a way to determine the total cost function of a company
+        self.total_cost = sp.Function('C')(sp.symbols('FC'), sp.Symbol('Q'), sp.symbols('b'))
+
+        self.marginal_cost = sp.diff(self.total_cost, sp.Symbol('Q'))
+
+        self.demand_curve = sp.Function('Q')(sp.Symbol('a'), sp.Symbol('p'), sp.Symbol('b'))
 
     def add_transaction(self, consumer):
         """this method adds the transaction to the company's wealth"""
@@ -170,6 +175,27 @@ class Company(mesa.Agent):
             else:
                 self.price = best_response
 
+    def calculate_monopoly_price(self):
+        """this method calculates the monopoly price for a company"""
+
+        q = sp.Symbol('Q')
+        marginal_cost = self.marginal_cost
+        total_revenue = self.demand_curve * q
+        marginal_revenue = sp.diff(total_revenue, q)
+
+        system_eq = sp.Eq(marginal_revenue, marginal_cost)
+        solution = sp.solve(system_eq, q)
+
+        mono_price = self.demand_curve.subs({q: solution[0]})
+
+        return mono_price
+
+    def R_D(self):
+        """this method is for companies to invest in research and development"""
+
+        #todo Need to implement a way for companies to invest in R&D and how it affects their production and costs
+
+        pass
 
 #todo Need to work on factory class, maybe even abandon it for now, for simplicity 
     class Factory(mesa.Agent):
