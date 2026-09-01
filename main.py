@@ -2,6 +2,7 @@
 consumers, companies, factories and economics decision makings"""
 
 import random
+import re
 import mesa
 import pandas as pd
 
@@ -23,6 +24,11 @@ class Consumer(mesa.Agent):
 
         if self.model.time % 4 == 0:
             self.get_paid(self.salary)
+
+    def coefficient(self, x):
+        """this method calculates the coefficient for the utility function based on the consumer's current utility"""
+
+        return (lambda x: -0.07 * x + 0.8)
 
     def get_paid(self, salary):
         """this method adds the monthly payment to the consumer's wealth"""
@@ -100,9 +106,9 @@ class Consumer(mesa.Agent):
 
         good_utility = int(round(pos * price, 0))
 
-        coefficient = (lambda x: -0.07 * x + 0.8)
+        coefficient = self.coefficient(self.live_utile)
 
-        self.live_utile += good_utility * coefficient(self.live_utile)
+        self.live_utile += good_utility * coefficient
 
     def __repr__(self) -> str:
         return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mpc}, salary={self.salary})"
