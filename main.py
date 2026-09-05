@@ -29,7 +29,7 @@ class Consumer(mesa.Agent):
     def coefficient(self, x):
         """this method calculates the coefficient for the utility function based on the consumer's current utility"""
 
-        return lambda x: -0.07 * x + 0.8
+        return -0.07 * x + 0.8
 
     def get_paid(self, salary):
         """this method adds the monthly payment to the consumer's wealth"""
@@ -210,24 +210,24 @@ class Company(mesa.Agent):
         mono_price = self.calculate_monopoly_price()
         t = self.differ
 
-        if not competitor.price:
+        if competitor.price == 0:
 
             self.price = mono_price
 
-        elif competitor.price:
+        elif competitor.price != 0:
 
-            best_response = (competitor.price + t + m_c) / 2
+            duopoly_price = (competitor.price + t + m_c) / 2
 
-            if best_response > mono_price:
-                br = mono_price
+            if duopoly_price > mono_price:
+                best_response = mono_price
 
-            elif best_response < m_c:
-                br = m_c
+            elif duopoly_price < m_c:
+                best_response = m_c
 
             else:
-                br = best_response
+                best_response = duopoly_price
 
-            return br
+            return best_response
 
     def calculate_monopoly_price(self):
         """this method calculates the monopoly price for a company"""
