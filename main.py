@@ -109,6 +109,8 @@ class Consumer(mesa.Agent):
         self.wealth -= company_seller.price
         company_seller.add_transaction(self)
 
+        print(f"agent {self.unique_id} purchased from company {company_seller.name} for {company_seller.price}$")
+
     def utile(self, company_seller, pos):
         """this method calculates and adds the utility of a good or service purchased from a company"""
 
@@ -142,28 +144,28 @@ class Company(mesa.Agent):
             {"consumer_id": [], "price": [], "time": []}
         )
 
-
         self.tech_level = tech_level
 
-        v_c, f_c = self.calculate_cost()
+        v_c, f_c = self.calculate_cost(tech_level)
 
-        self.total_cost_function = sp.Eq(sp.Symbol("TC"), v_c * sp.Symbol("Q") + f_c)
+        self.total_cost_function =  v_c * sp.Symbol("Q") + f_c
 
-        self.marginal_cost = sp.diff(self.total_cost_function, sp.Symbol("Q"))
+        self.marginal_cost = v_c
 
         self.demand_curve = demand_curve
+
 
     def action(self):
         """this method is for putting all actions a company does in a week"""
 
         self.set_price()
 
-    def calculate_cost(self):
+    def calculate_cost(self, tech_level):
         """this method calculates the total cost of a company based on its total cost function"""
 
-        variable_cost_coeff = (1 - self.tech_level)
+        variable_cost_coeff = (1 - tech_level)
 
-        fixed_cost = int((1 - self.tech_level) * 10000)
+        fixed_cost = int((1 - tech_level) * 10000)
 
         return (variable_cost_coeff, fixed_cost)
 
@@ -174,7 +176,9 @@ class Company(mesa.Agent):
 
         if len(companies) == 2:
 
-            self.price = self.find_duopoly_price()
+            result = self.price = self.find_duopoly_price()
+
+        return result
 
     def add_transaction(self, consumer):
         """this method adds the transaction to the company's wealth"""
@@ -199,27 +203,26 @@ class Company(mesa.Agent):
     def find_duopoly_price(self):
         """this method is for companies to find their optimal price based on Game Theory models"""
 
-        competitor = next(
-            iter(
-                agent for agent in self.model.agents.select(agent_type=Company) if agent != self
-            )
-        )
-        mrc = self.marginal_cost
+        competitors = self.model.agents.select(agent_type=Company, filter_func=lambda x: x != self)
+        competitor = competitors[0]
+
+        m_c = self.marginal_cost
         mono_price = self.calculate_monopoly_price()
         t = self.differ
 
         if not competitor.price:
 
             self.price = mono_price
+
         elif competitor.price:
 
-            best_response = (competitor.price + t + mrc) / 2
+            best_response = (competitor.price + t + m_c) / 2
 
             if best_response > mono_price:
                 br = mono_price
 
-            elif best_response < mrc:
-                br = mrc
+            elif best_response < m_c:
+                br = m_c
 
             else:
                 br = best_response
@@ -229,15 +232,15 @@ class Company(mesa.Agent):
     def calculate_monopoly_price(self):
         """this method calculates the monopoly price for a company"""
 
-        q = sp.Symbol("Q")
+        P = sp.Symbol("P")
         marginal_cost = self.marginal_cost
-        total_revenue = self.demand_curve * q
-        marginal_revenue = sp.diff(total_revenue, q)
+        total_revenue = self.demand_curve * P
+        marginal_revenue = sp.diff(total_revenue, P)
 
         system_eq = sp.Eq(marginal_revenue, marginal_cost)
-        solution = sp.solve(system_eq, q)
+        solution = sp.solve(system_eq, P)
 
-        mono_price = self.demand_curve.subs({q: solution[0]})
+        mono_price = self.demand_curve.subs({P: solution[0]})
 
         return mono_price
 
