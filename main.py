@@ -216,6 +216,7 @@ class Company(mesa.Agent):
         mono_price = self.calculate_monopoly_price()
         t = self.differ
 
+        #* These conditions must hold no matter what. i should somehow add them to the set_price method
         if competitor.price == 0:
 
             return mono_price
