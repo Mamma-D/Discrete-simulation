@@ -23,13 +23,10 @@ class Consumer(mesa.Agent):
     def action(self):
         """this method is for putting all actions a consumer does in a week"""
 
+        self.consume()
         if self.model.time % 4 == 0:
             self.get_paid(self.salary)
-
-    def coefficient(self, x):
-        """this method calculates the coefficient for the utility function based on the consumer's current utility"""
-
-        return -0.07 * x + 0.8
+        self.balance_utile()
 
     def get_paid(self, salary):
         """this method adds the monthly payment to the consumer's wealth"""
@@ -54,6 +51,12 @@ class Consumer(mesa.Agent):
 
         return round((received_salary - saving), 2)
 
+    def balance_utile(self):
+        """this method mimics the decrease of utility over time"""
+
+        self.live_utile -= 3.5
+        return self.live_utile
+
     def consume(self):
         """this method mimics spending money on goods and services"""
 
@@ -62,7 +65,7 @@ class Consumer(mesa.Agent):
 
         # We assume consumer can shop at the beginning 
         transaction_status = True
-        while transaction_status:
+        while transaction_status and self.live_utile < 9:
 
 
             #* -----Stage 1: Choosing a market to start-----
@@ -118,9 +121,12 @@ class Consumer(mesa.Agent):
 
         good_utility = int(round(pos * price, 0))
 
-        coefficient = self.coefficient(self.live_utile)
+        x = sp.Symbol('x')
+        coefficient = 10 / (1 + sp.E**(0.45 * x) )
 
-        self.live_utile += good_utility * coefficient
+        utility_gotten = good_utility * coefficient.subs(x, self.live_utile)
+
+        self.live_utile += int(round(utility_gotten, 2))
 
     def __repr__(self) -> str:
         return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mpc}, salary={self.salary})"
