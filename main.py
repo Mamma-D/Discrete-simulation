@@ -103,6 +103,10 @@ class Consumer(mesa.Agent):
 
                     self.utile(chosen_company)
 
+                else:
+
+                    transaction_status = False
+
                     #! -----Buying process ends here-----
 
 
