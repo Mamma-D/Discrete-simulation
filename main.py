@@ -258,7 +258,7 @@ class Company(mesa.Agent):
         system_eq = sp.Eq(marginal_revenue, marginal_cost)
         solution = sp.solve(system_eq, P)
 
-        mono_price = self.demand_curve.subs({P: solution[0]})
+        mono_price = float(self.demand_curve.subs({P: solution[0]}))
 
         return round(mono_price, 2)
 
