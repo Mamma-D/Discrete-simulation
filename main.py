@@ -176,9 +176,9 @@ class Company(mesa.Agent):
 
         if len(companies) == 2:
 
-            result = self.find_duopoly_price()
-
-        return result
+            price = self.find_duopoly_price()
+            self.price = price
+            return price
 
     def add_transaction(self, consumer):
         """this method adds the transaction to the company's wealth"""
@@ -210,13 +210,13 @@ class Company(mesa.Agent):
         mono_price = self.calculate_monopoly_price()
         t = self.differ
 
-        if competitor.price == 0 or not competitor.price:
+        if competitor.price == 0:
 
             return mono_price
 
         else:
 
-            duopoly_price = (competitor.price + t + m_c) / 2
+            duopoly_price = round((competitor.price + t + m_c) / 2, 2)
 
             if duopoly_price > mono_price:
                 return mono_price
@@ -241,7 +241,7 @@ class Company(mesa.Agent):
 
         mono_price = self.demand_curve.subs({P: solution[0]})
 
-        return mono_price
+        return round(mono_price, 2)
 
     def R_D(self):
         """this method is for companies to invest in research and development"""
