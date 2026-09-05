@@ -58,39 +58,49 @@ class Consumer(mesa.Agent):
         """this method mimics spending money on goods and services"""
 
         # Added a condition to keep consume
-        while self.live_utile < 9:
+        # We check if the last transaction was successful
 
+        # We assume consumer can shop at the beginning 
+        transaction_status = True
+        while transaction_status:
+
+
+            #* -----Stage 1: Choosing a market to start-----
+            #todo Add a way to have multiple markets, for now we just have one market
             # Checking available companies in the market (don't have multiple markets yet)
 
+            # Entered the market, found the companies
             companies = self.model.agents.select(agent_type=Company)
             companies_count = len(companies)
 
-            # * If it's a two company market, the consumer will choose the company with the lowest cost for them to buy from
-            if companies_count > 0:
 
-                # * In the specific case of a two company market, this block happens
-                if companies_count == 2:
+            #! -----Stage 1.2: Buying process starts here-----
 
-                    pos = round(random.uniform(0.00, 1.00), 2)
-                    self.position["market"] = pos
+            #* In the specific case of a two company market, this block happens
+            if companies_count == 2:
 
-                    # * Linear city model in Game Theory to determine which company to buy from
-                    cost_for_firm_1 = (
-                        companies[0].price + companies[0].differ * (pos) ** 2
-                    )
-                    cost_for_firm_2 = (
-                        companies[1].price + companies[1].differ * (1 - pos) ** 2
-                    )
+                pos = round(random.uniform(0.00, 1.00), 2)
+                self.position["market"] = pos
 
-                    chosen_company = companies[0] if cost_for_firm_1 < cost_for_firm_2 else companies[1]
+                #* Linear city model in Game Theory to determine which company to buy from
+                cost_for_firm_1 = (
+                    companies[0].price + companies[0].differ * (pos) ** 2
+                )
+                cost_for_firm_2 = (
+                    companies[1].price + companies[1].differ * (1 - pos) ** 2
+                )
 
-                    if self.wealth >= chosen_company.price:
+                chosen_company = companies[0] if cost_for_firm_1 < cost_for_firm_2 else companies[1]
 
-                        self.purchase(chosen_company)
+                if self.wealth >= chosen_company.price:
 
-                        self.utile(chosen_company, pos)
+                    transaction_status = True
 
-            break
+                    self.purchase(chosen_company)
+
+                    self.utile(chosen_company, pos)
+
+                    #! -----Buying process ends here-----
 
 
     def purchase(self, company_seller):
