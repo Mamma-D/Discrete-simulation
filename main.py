@@ -176,7 +176,7 @@ class Company(mesa.Agent):
 
         if len(companies) == 2:
 
-            result = self.price = self.find_duopoly_price()
+            result = self.find_duopoly_price()
 
         return result
 
@@ -210,24 +210,23 @@ class Company(mesa.Agent):
         mono_price = self.calculate_monopoly_price()
         t = self.differ
 
-        if competitor.price == 0:
+        if competitor.price == 0 or not competitor.price:
 
-            self.price = mono_price
+            return mono_price
 
-        elif competitor.price != 0:
+        else:
 
             duopoly_price = (competitor.price + t + m_c) / 2
 
             if duopoly_price > mono_price:
-                best_response = mono_price
+                return mono_price
 
             elif duopoly_price < m_c:
-                best_response = m_c
+                return m_c
 
             else:
-                best_response = duopoly_price
+                return duopoly_price
 
-            return best_response
 
     def calculate_monopoly_price(self):
         """this method calculates the monopoly price for a company"""
