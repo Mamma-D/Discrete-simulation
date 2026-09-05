@@ -266,7 +266,7 @@ class TheModel(mesa.Model):
 
         self.datacollector = mesa.DataCollector(
             agenttype_reporters={
-                Consumer: {"Wealth": "wealth", "Savings": "savings"},
+                Consumer: {"Wealth": "wealth", "Savings": "savings", "Salary": "salary", "MPC": "mpc", "LiveUtile": "live_utile"},
                 Company: {"Wealth": "wealth", "Price": "price"},
             }
         )
