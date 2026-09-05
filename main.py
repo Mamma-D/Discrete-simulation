@@ -127,14 +127,14 @@ class Consumer(mesa.Agent):
 class Company(mesa.Agent):
     """this class represents companies"""
 
-    def __init__(self, model, given_differ):
+    def __init__(self, model, given_differ, demand_curve, name, investment, tech_level):
         super().__init__(model)
 
-        # todo Need a way to determine a companies starting wealth, maybe just pass in a random amount
-        # todo of starting investment
-        self.wealth = 0
+        self.wealth = investment
 
         self.differ = given_differ
+
+        self.name = name
 
         self.price = 0
 
@@ -142,22 +142,30 @@ class Company(mesa.Agent):
             {"consumer_id": [], "price": [], "time": []}
         )
 
-        # todo We need a way to determine the total cost function of a company
-        self.total_cost = sp.Function("C")(
-            sp.symbols("FC"), sp.Symbol("Q"), sp.symbols("b")
-        )
 
-        self.marginal_cost = sp.diff(self.total_cost, sp.Symbol("Q"))
+        self.tech_level = tech_level
 
-        #todo Need to make a demand curve for the company
-        self.demand_curve = sp.Function("Q")(
-            sp.Symbol("a"), sp.Symbol("p"), sp.Symbol("b")
-        )
+        v_c, f_c = self.calculate_cost()
+
+        self.total_cost_function = sp.Eq(sp.Symbol("TC"), v_c * sp.Symbol("Q") + f_c)
+
+        self.marginal_cost = sp.diff(self.total_cost_function, sp.Symbol("Q"))
+
+        self.demand_curve = demand_curve
 
     def action(self):
         """this method is for putting all actions a company does in a week"""
 
         self.set_price()
+
+    def calculate_cost(self):
+        """this method calculates the total cost of a company based on its total cost function"""
+
+        variable_cost_coeff = (1 - self.tech_level)
+
+        fixed_cost = int((1 - self.tech_level) * 10000)
+
+        return (variable_cost_coeff, fixed_cost)
 
     def set_price(self):
         """this method sets the price of a good or service based on the company's total cost and desired profit margin"""
