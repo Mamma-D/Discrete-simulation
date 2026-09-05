@@ -127,12 +127,12 @@ class Consumer(mesa.Agent):
 class Company(mesa.Agent):
     """this class represents companies"""
 
-    def __init__(self, model, given_differ, demand_curve, name, investment, tech_level):
+    def __init__(self, model, name,  investment, tech_level, demand_curve, differ):
         super().__init__(model)
 
         self.wealth = investment
 
-        self.differ = given_differ
+        self.differ = differ
 
         self.name = name
 
@@ -287,10 +287,15 @@ class TheModel(mesa.Model):
 
         # * Creating the companies in the model
 
-        for _ in range(companies["population"]):
+        for company in companies["companies"]:
 
             company = Company(
-                self, given_differ=companies["indexes"]["differentiation"]
+                self, 
+                name=company["name"],
+                investment=company["investment"],
+                tech_level=company["tech_level"],
+                demand_curve=companies["demand_curve"],
+                differ=companies["differentiation"]
             )
 
             self.agents.add(company)
