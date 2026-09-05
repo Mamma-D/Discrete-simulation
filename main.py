@@ -23,10 +23,10 @@ class Consumer(mesa.Agent):
     def action(self):
         """this method is for putting all actions a consumer does in a week"""
 
+        self.balance_utile()
         self.consume()
         if self.model.time % 4 == 0:
             self.get_paid(self.salary)
-        self.balance_utile()
 
     def get_paid(self, salary):
         """this method adds the monthly payment to the consumer's wealth"""
@@ -101,7 +101,7 @@ class Consumer(mesa.Agent):
 
                     self.purchase(chosen_company)
 
-                    self.utile(chosen_company, pos)
+                    self.utile(chosen_company)
 
                     #! -----Buying process ends here-----
 
@@ -109,24 +109,24 @@ class Consumer(mesa.Agent):
     def purchase(self, company_seller):
         """this method mimics the purchase of a good or service from a company"""
 
-        self.wealth -= company_seller.price
+        self.wealth = round(self.wealth - company_seller.price)
         company_seller.add_transaction(self)
 
         print(f"agent {self.unique_id} purchased from company {company_seller.name} for {company_seller.price}$")
 
-    def utile(self, company_seller, pos):
+    def utile(self, company_seller):
         """this method calculates and adds the utility of a good or service purchased from a company"""
 
-        price = company_seller.price
+        #todo commented out the reasonable calculation for now to fix it later
+        # x = sp.Symbol('x')
+        # coefficient = 10 / (1 + sp.E**(0.45 * x) )
 
-        good_utility = int(round(pos * price, 0))
+        # utility_gotten = coefficient.subs(x, self.live_utile)
 
-        x = sp.Symbol('x')
-        coefficient = 10 / (1 + sp.E**(0.45 * x) )
+        # self.live_utile += int(round(utility_gotten, 2))
 
-        utility_gotten = good_utility * coefficient.subs(x, self.live_utile)
+        self.live_utile += 4
 
-        self.live_utile += int(round(utility_gotten, 2))
 
     def __repr__(self) -> str:
         return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mpc}, salary={self.salary})"
@@ -220,6 +220,14 @@ class Company(mesa.Agent):
 
             return mono_price
 
+        if competitor.price < m_c:
+
+            return 0
+
+        if competitor.price > mono_price:
+
+            return mono_price
+
         else:
 
             duopoly_price = round((competitor.price + t + m_c) / 2, 2)
@@ -310,7 +318,6 @@ class TheModel(mesa.Model):
 
     def step(self):
         # 1. Collect data first
-        self.datacollector.collect(self)
         
         # 2. Extract and run actions for Companies
         self.agents.select(agent_type=Company).shuffle_do("action")
@@ -318,6 +325,7 @@ class TheModel(mesa.Model):
         # 3. Extract and run actions for Consumers
         self.agents.select(agent_type=Consumer).shuffle_do("action")
 
+        self.datacollector.collect(self)
 
 
 def generate_number(category: dict, index: str):
