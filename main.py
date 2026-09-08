@@ -63,13 +63,15 @@ class Consumer(mesa.Agent):
         # Added a condition to keep consume
         # We check if the last transaction was successful
 
-        # We assume consumer can shop at the beginning 
+        # We assume consumer can shop at the beginning
         transaction_status = True
         while transaction_status and self.live_utile < 9:
 
-            all_companies = self.model.agents.select(agent_type=Company).groupby('market')
+            all_companies = self.model.agents.select(agent_type=Company).groupby(
+                "market"
+            )
 
-            #* -----Stage 1: Choosing a market to start-----
+            # * -----Stage 1: Choosing a market to start-----
 
             # Entered the market, found the companies
             for _, agentset in all_companies:
@@ -78,7 +80,7 @@ class Consumer(mesa.Agent):
 
                 #! -----Stage 1.2: Buying process starts here-----
 
-                #* In the specific case of a two company market, this block happens
+                # * In the specific case of a two company market, this block happens
                 if companies_count == 2:
 
                     chosen_company = self.duopoly_choose(companies)
@@ -97,7 +99,6 @@ class Consumer(mesa.Agent):
 
                         #! -----Buying process ends here-----
 
-
     def duopoly_choose(self, companies):
         """this method is for deciding which company to choose for buying"""
 
@@ -108,15 +109,13 @@ class Consumer(mesa.Agent):
         else:
             pos = self.positions[companies[0].market]
 
-        #* Linear city model in Game Theory to determine which company to buy from
-        cost_for_firm_1 = (
-            companies[0].price + companies[0].differ * (pos) ** 2
-        )
-        cost_for_firm_2 = (
-            companies[1].price + companies[1].differ * (1 - pos) ** 2
-        )
+        # * Linear city model in Game Theory to determine which company to buy from
+        cost_for_firm_1 = companies[0].price + companies[0].differ * (pos) ** 2
+        cost_for_firm_2 = companies[1].price + companies[1].differ * (1 - pos) ** 2
 
-        chosen_company = companies[0] if cost_for_firm_1 < cost_for_firm_2 else companies[1]
+        chosen_company = (
+            companies[0] if cost_for_firm_1 < cost_for_firm_2 else companies[1]
+        )
 
         return chosen_company
 
@@ -126,23 +125,28 @@ class Consumer(mesa.Agent):
         self.wealth = round(self.wealth - company_seller.price)
         company_seller.add_transaction(self)
 
-        print(f"agent {self.unique_id} purchased from company {company_seller.name} for {company_seller.price}$")
+        print(
+            f"agent {self.unique_id} purchased from company {company_seller.name} for {company_seller.price}$"
+        )
 
     def utile(self, price):
         """this method calculates and adds the utility of a good or service purchased from a company"""
 
-        #* I'll use a simple method where the good doesn't matter and you're utility is given by you're live utile for now
-        x = sp.Symbol('x')
-        coefficient = 19 / (1 + ( 0.9 * sp.E**(0.4 * x) ) ) - 0.3
+        # * I'll use a simple method where the good doesn't matter and you're utility is given by you're live utile for now
+        x = sp.Symbol("x")
+        coefficient = 19 / (1 + (0.9 * sp.E ** (0.4 * x))) - 0.3
 
         utility_gotten = round(coefficient.subs(x, self.live_utile), 0)
 
         self.live_utile += int(utility_gotten)
 
+
 class Company(mesa.Agent):
     """this class represents companies"""
 
-    def __init__(self, model, name, investment, tech_level, demand_curve, differ, market):
+    def __init__(
+        self, model, name, investment, tech_level, demand_curve, differ, market
+    ):
         super().__init__(model)
 
         self.wealth = investment
@@ -155,20 +159,17 @@ class Company(mesa.Agent):
 
         self.price = 0
 
-        self.transactions = pd.DataFrame(
-            {"consumer_id": [], "price": [], "time": []}
-        )
+        self.transactions = pd.DataFrame({"consumer_id": [], "price": [], "time": []})
 
         self.tech_level = tech_level
 
         v_c, f_c = self.calculate_cost(tech_level)
 
-        self.total_cost_function =  v_c * sp.Symbol("Q") + f_c
+        self.total_cost_function = v_c * sp.Symbol("Q") + f_c
 
         self.marginal_cost = v_c
 
         self.demand_curve = demand_curve
-
 
     def action(self):
         """this method is for putting all actions a company does in a week"""
@@ -178,7 +179,7 @@ class Company(mesa.Agent):
     def calculate_cost(self, tech_level):
         """this method calculates the total cost of a company based on its total cost function"""
 
-        variable_cost_coeff = (1 - tech_level)
+        variable_cost_coeff = 1 - tech_level
 
         fixed_cost = int((1 - tech_level) * 10000)
 
@@ -218,14 +219,16 @@ class Company(mesa.Agent):
     def find_duopoly_price(self):
         """this method is for companies to find their optimal price based on Game Theory models"""
 
-        competitors = self.model.agents.select(agent_type=Company, filter_func=lambda x: x != self)
+        competitors = self.model.agents.select(
+            agent_type=Company, filter_func=lambda x: x != self
+        )
         competitor = competitors[0]
 
         m_c = self.marginal_cost
         mono_price = self.calculate_monopoly_price()
         t = self.differ
 
-        #* These conditions must hold no matter what. i should somehow add them to the set_price method
+        # * These conditions must hold no matter what. i should somehow add them to the set_price method
         if competitor.price == 0:
 
             return mono_price
@@ -250,7 +253,6 @@ class Company(mesa.Agent):
 
             else:
                 return duopoly_price
-
 
     def calculate_monopoly_price(self):
         """this method calculates the monopoly price for a company"""
@@ -290,7 +292,13 @@ class TheModel(mesa.Model):
 
         self.datacollector = mesa.DataCollector(
             agenttype_reporters={
-                Consumer: {"Wealth": "wealth", "Savings": "savings", "Salary": "salary", "MPC": "mpc", "LiveUtile": "live_utile"},
+                Consumer: {
+                    "Wealth": "wealth",
+                    "Savings": "savings",
+                    "Salary": "salary",
+                    "MPC": "mpc",
+                    "LiveUtile": "live_utile",
+                },
                 Company: {"Wealth": "wealth", "Price": "price"},
             }
         )
@@ -315,26 +323,26 @@ class TheModel(mesa.Model):
 
         for market in markets:
 
-            for company in market['companies']:
+            for company in market["companies"]:
 
                 company = Company(
-                    self, 
+                    self,
                     name=company["name"],
                     market=market["market"],
                     investment=company["investment"],
                     tech_level=company["tech_level"],
                     demand_curve=market["demand_curve"],
-                    differ=market["differentiation"]
+                    differ=market["differentiation"],
                 )
 
                 self.agents.add(company)
 
     def step(self):
         # 1. Collect data first
-        
+
         # 2. Extract and run actions for Companies
         self.agents.select(agent_type=Company).shuffle_do("action")
-        
+
         # 3. Extract and run actions for Consumers
         self.agents.select(agent_type=Consumer).shuffle_do("action")
 
