@@ -129,11 +129,6 @@ class Consumer(mesa.Agent):
 
         self.live_utile += int(utility_gotten)
 
-
-    def __repr__(self) -> str:
-        return f"Consumer(id={self.unique_id}, wealth={self.wealth}, MPC={self.mpc}, salary={self.salary})"
-
-
 class Company(mesa.Agent):
     """this class represents companies"""
 
