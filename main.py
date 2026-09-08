@@ -74,9 +74,9 @@ class Consumer(mesa.Agent):
             # * -----Stage 1: Choosing a market to start-----
 
             # Entered the market, found the companies
-            for _, agentset in all_companies:
+            for _, companies in all_companies:
 
-                companies_count = len(agentset)
+                companies_count = len(companies)
 
                 #! -----Stage 1.2: Buying process starts here-----
 
