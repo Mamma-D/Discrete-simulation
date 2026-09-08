@@ -188,7 +188,8 @@ class Company(mesa.Agent):
     def set_price(self):
         """this method sets the price of a good or service based on the company's total cost and desired profit margin"""
 
-        companies = self.model.agents.select(agent_type=Company, filter_func=lambda x: x.market == self.market)
+        all_companies = self.model.agents.select(agent_type=Company)
+        companies = [a for a in all_companies if a.market == self.market]
 
         if len(companies) == 2:
 
@@ -219,9 +220,9 @@ class Company(mesa.Agent):
     def find_duopoly_price(self):
         """this method is for companies to find their optimal price based on Game Theory models"""
 
-        competitors = self.model.agents.select(
-            agent_type=Company, filter_func=lambda x: x != self and x.market == self.market
-        )
+        all_companies = self.model.agents.select(agent_type=Company)
+        competitors = [a for a in all_companies if a != self and a.market == self.market]
+
         competitor = competitors[0]
 
         m_c = self.marginal_cost
