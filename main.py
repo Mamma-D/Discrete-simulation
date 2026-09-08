@@ -102,7 +102,7 @@ class Consumer(mesa.Agent):
     def duopoly_choose(self, companies):
         """this method is for deciding which company to choose for buying"""
 
-        if not self.pos:
+        if companies[0].market not in self.positions:
             pos = round(random.uniform(0.00, 1.00), 2)
             self.positions[companies[0].market] = pos
 
