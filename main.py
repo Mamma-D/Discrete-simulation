@@ -300,7 +300,7 @@ class TheModel(mesa.Model):
                     "MPC": "mpc",
                     "LiveUtile": "live_utile",
                 },
-                Company: {"Wealth": "wealth", "Price": "price"},
+                Company: {"Name": "name", "Wealth": "wealth", "Price": "price"},
             }
         )
 
