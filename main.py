@@ -17,7 +17,7 @@ class Consumer(mesa.Agent):
         self.mpc = mpc
         self.essentials = round(250 + (self.salary * 0.25), 2)
         self.savings = 0
-        self.position = {}
+        self.positions = {}
         self.live_utile = 0
 
     def action(self):
@@ -67,48 +67,58 @@ class Consumer(mesa.Agent):
         transaction_status = True
         while transaction_status and self.live_utile < 9:
 
+            all_companies = self.model.agents.select(agent_type=Company).groupby('market')
 
             #* -----Stage 1: Choosing a market to start-----
-            #todo Add a way to have multiple markets, for now we just have one market
-            # Checking available companies in the market (don't have multiple markets yet)
 
             # Entered the market, found the companies
-            companies = self.model.agents.select(agent_type=Company)
-            companies_count = len(companies)
+            for _, agentset in all_companies:
+
+                companies_count = len(agentset)
+
+                #! -----Stage 1.2: Buying process starts here-----
+
+                #* In the specific case of a two company market, this block happens
+                if companies_count == 2:
+
+                    chosen_company = self.duopoly_choose(companies)
+
+                    if self.wealth >= chosen_company.price:
+
+                        transaction_status = True
+
+                        self.purchase(chosen_company)
+
+                        self.utile(chosen_company.price)
+
+                    else:
+
+                        transaction_status = False
+
+                        #! -----Buying process ends here-----
 
 
-            #! -----Stage 1.2: Buying process starts here-----
+    def duopoly_choose(self, companies):
+        """this method is for deciding which company to choose for buying"""
 
-            #* In the specific case of a two company market, this block happens
-            if companies_count == 2:
+        if not self.pos:
+            pos = round(random.uniform(0.00, 1.00), 2)
+            self.positions[companies[0].market] = pos
 
-                pos = round(random.uniform(0.00, 1.00), 2)
-                self.position["market"] = pos
+        else:
+            pos = self.positions[companies[0].market]
 
-                #* Linear city model in Game Theory to determine which company to buy from
-                cost_for_firm_1 = (
-                    companies[0].price + companies[0].differ * (pos) ** 2
-                )
-                cost_for_firm_2 = (
-                    companies[1].price + companies[1].differ * (1 - pos) ** 2
-                )
+        #* Linear city model in Game Theory to determine which company to buy from
+        cost_for_firm_1 = (
+            companies[0].price + companies[0].differ * (pos) ** 2
+        )
+        cost_for_firm_2 = (
+            companies[1].price + companies[1].differ * (1 - pos) ** 2
+        )
 
-                chosen_company = companies[0] if cost_for_firm_1 < cost_for_firm_2 else companies[1]
+        chosen_company = companies[0] if cost_for_firm_1 < cost_for_firm_2 else companies[1]
 
-                if self.wealth >= chosen_company.price:
-
-                    transaction_status = True
-
-                    self.purchase(chosen_company)
-
-                    self.utile(chosen_company.price, pos)
-
-                else:
-
-                    transaction_status = False
-
-                    #! -----Buying process ends here-----
-
+        return chosen_company
 
     def purchase(self, company_seller):
         """this method mimics the purchase of a good or service from a company"""
@@ -118,7 +128,7 @@ class Consumer(mesa.Agent):
 
         print(f"agent {self.unique_id} purchased from company {company_seller.name} for {company_seller.price}$")
 
-    def utile(self, price, pos):
+    def utile(self, price):
         """this method calculates and adds the utility of a good or service purchased from a company"""
 
         #* I'll use a simple method where the good doesn't matter and you're utility is given by you're live utile for now
