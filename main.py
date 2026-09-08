@@ -101,7 +101,7 @@ class Consumer(mesa.Agent):
 
                     self.purchase(chosen_company)
 
-                    self.utile(chosen_company)
+                    self.utile(chosen_company.price, pos)
 
                 else:
 
@@ -118,18 +118,16 @@ class Consumer(mesa.Agent):
 
         print(f"agent {self.unique_id} purchased from company {company_seller.name} for {company_seller.price}$")
 
-    def utile(self, company_seller):
+    def utile(self, price, pos):
         """this method calculates and adds the utility of a good or service purchased from a company"""
 
-        #todo commented out the reasonable calculation for now to fix it later
-        # x = sp.Symbol('x')
-        # coefficient = 10 / (1 + sp.E**(0.45 * x) )
+        #* I'll use a simple method where the good doesn't matter and you're utility is given by you're live utile for now
+        x = sp.Symbol('x')
+        coefficient = 19 / (1 + ( 0.9 * sp.E**(0.4 * x) ) ) - 0.3
 
-        # utility_gotten = coefficient.subs(x, self.live_utile)
+        utility_gotten = round(coefficient.subs(x, self.live_utile), 0)
 
-        # self.live_utile += int(round(utility_gotten, 2))
-
-        self.live_utile += 4
+        self.live_utile += int(utility_gotten)
 
 
     def __repr__(self) -> str:
