@@ -132,10 +132,12 @@ class Consumer(mesa.Agent):
 class Company(mesa.Agent):
     """this class represents companies"""
 
-    def __init__(self, model, name,  investment, tech_level, demand_curve, differ):
+    def __init__(self, model, name, investment, tech_level, demand_curve, differ, market):
         super().__init__(model)
 
         self.wealth = investment
+
+        self.market = market
 
         self.differ = differ
 
@@ -273,7 +275,7 @@ class Company(mesa.Agent):
 class TheModel(mesa.Model):
     """this class is a initial model"""
 
-    def __init__(self, consumers, companies):
+    def __init__(self, consumers, markets):
         super().__init__()
 
         self.datacollector = mesa.DataCollector(
@@ -301,17 +303,18 @@ class TheModel(mesa.Model):
 
         # * Creating the companies in the model
 
-        for market in companies:
+        for market in markets:
 
             for company in market['companies']:
 
                 company = Company(
                     self, 
                     name=company["name"],
+                    market=market["market"],
                     investment=company["investment"],
                     tech_level=company["tech_level"],
-                    demand_curve=companies["demand_curve"],
-                    differ=companies["differentiation"]
+                    demand_curve=market["demand_curve"],
+                    differ=market["differentiation"]
                 )
 
                 self.agents.add(company)
