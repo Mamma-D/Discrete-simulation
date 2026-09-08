@@ -301,18 +301,20 @@ class TheModel(mesa.Model):
 
         # * Creating the companies in the model
 
-        for company in companies["companies"]:
+        for market in companies:
 
-            company = Company(
-                self, 
-                name=company["name"],
-                investment=company["investment"],
-                tech_level=company["tech_level"],
-                demand_curve=companies["demand_curve"],
-                differ=companies["differentiation"]
-            )
+            for company in market['companies']:
 
-            self.agents.add(company)
+                company = Company(
+                    self, 
+                    name=company["name"],
+                    investment=company["investment"],
+                    tech_level=company["tech_level"],
+                    demand_curve=companies["demand_curve"],
+                    differ=companies["differentiation"]
+                )
+
+                self.agents.add(company)
 
     def step(self):
         # 1. Collect data first
