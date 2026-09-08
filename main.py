@@ -60,21 +60,20 @@ class Consumer(mesa.Agent):
     def consume(self):
         """this method mimics spending money on goods and services"""
 
-        # Added a condition to keep consume
-        # We check if the last transaction was successful
-
         # We assume consumer can shop at the beginning
         transaction_status = True
-        while transaction_status and self.live_utile < 9:
 
-            all_companies = self.model.agents.select(agent_type=Company).groupby(
-                "market"
-            )
+        all_companies = self.model.agents.select(agent_type=Company).groupby(
+            "market"
+        )
 
-            # * -----Stage 1: Choosing a market to start-----
+        # * -----Stage 1: Choosing a market to start-----
 
-            # Entered the market, found the companies
-            for _, companies in all_companies:
+        # Entered the market, found the companies
+        for market, companies in all_companies:
+            # Added a condition to keep consume
+            # We check if the last transaction was successful
+            if transaction_status and self.live_utile < 9:
 
                 companies_count = len(companies)
 
