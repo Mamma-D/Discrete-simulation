@@ -1,4 +1,5 @@
 """this script simulates a sequence of pretty complex events including
+
 consumers, companies, factories and economics decision makings"""
 
 import random
@@ -19,14 +20,15 @@ class Consumer(mesa.Agent):
         self.savings = 0
         self.positions = {}
         self.live_utile = 0
+        self.memory = {}
 
     def action(self):
-        """this method is for putting all actions a consumer does in a week"""
+        """this method is for putting all actions a consumer does in a DAY"""
 
-        self.balance_utile()
         self.consume()
-        if self.model.time % 4 == 0:
+        if self.model.time % 30 == 0:
             self.get_paid(self.salary)
+        self.balance_utile()
 
     def get_paid(self, salary):
         """this method adds the monthly payment to the consumer's wealth"""
@@ -54,8 +56,15 @@ class Consumer(mesa.Agent):
     def balance_utile(self):
         """this method mimics the decrease of utility over time"""
 
-        self.live_utile -= 3.5
+        self.live_utile = 0
+
         return self.live_utile
+
+    def update_memory(self, market):
+        """this method updates the person memory with what they bought and when they bought it distinguished by markets"""
+
+        # logs that this consumer bought a good from the market in this time
+        self.memory[market] = self.model.time
 
     def consume(self):
         """this method mimics spending money on goods and services"""
@@ -73,7 +82,7 @@ class Consumer(mesa.Agent):
         for market, companies in all_companies:
             # Added a condition to keep consume
             # We check if the last transaction was successful
-            if transaction_status and self.live_utile < 9:
+            if self.live_utile < 4:
 
                 companies_count = len(companies)
 
@@ -92,9 +101,11 @@ class Consumer(mesa.Agent):
 
                         self.utile(chosen_company.price)
 
-                    else:
+                        self.update_memory(market)
 
-                        transaction_status = False
+                    else:
+                        #at any 'buying process' if a transaction fails, we should leave the consume process
+                        continue
 
                         #! -----Buying process ends here-----
 
@@ -144,7 +155,7 @@ class Company(mesa.Agent):
     """this class represents companies"""
 
     def __init__(
-        self, model, name, investment, tech_level, demand_curve, differ, market
+        self, model, name, investment, tech_level, demand_curve, differ, market, marginal_cost
     ):
         super().__init__(model)
 
@@ -166,7 +177,7 @@ class Company(mesa.Agent):
 
         self.total_cost_function = v_c * sp.Symbol("Q") + f_c
 
-        self.marginal_cost = v_c
+        self.marginal_cost = marginal_cost
 
         self.demand_curve = demand_curve
 
@@ -333,6 +344,7 @@ class TheModel(mesa.Model):
                     tech_level=company["tech_level"],
                     demand_curve=market["demand_curve"],
                     differ=market["differentiation"],
+                    marginal_cost=int(sp.solve(market["supply_curve"], sp.Symbol('P'))[0])
                 )
 
                 self.agents.add(company)
@@ -341,7 +353,8 @@ class TheModel(mesa.Model):
         # 1. Collect data first
 
         # 2. Extract and run actions for Companies
-        self.agents.select(agent_type=Company).shuffle_do("action")
+        if self.time % 7 == 0 or self.time == 1:
+            self.agents.select(agent_type=Company).shuffle_do("action")
 
         # 3. Extract and run actions for Consumers
         self.agents.select(agent_type=Consumer).shuffle_do("action")
