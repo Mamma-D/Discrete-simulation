@@ -60,33 +60,30 @@ class Consumer(mesa.Agent):
 
         return self.live_utile
 
-    def update_memory(self, market):
+    def update_memory(self, market, company):
         """this method updates the person memory with what they bought and when they bought it distinguished by markets"""
 
         # logs that this consumer bought a good from the market in this time
-        self.memory[market] = self.model.time
+        self.memory[market] = (self.model.time, company)
 
     def consume(self):
         """this method mimics spending money on goods and services"""
 
-        # We assume consumer can shop at the beginning
-        transaction_status = True
+        #* -----Stage 1: Checking if we even want to begin consuming-----
+        # Added a condition to keep consume
+        while self.live_utile < 10:
 
-        all_companies = self.model.agents.select(agent_type=Company).groupby(
+            #* -----Stage 2: Choosing a market to start-----
+            all_companies = self.model.agents.select(agent_type=Company).groupby(
             "market"
-        )
-
-        # * -----Stage 1: Choosing a market to start-----
-
+                    )
+            
         # Entered the market, found the companies
-        for market, companies in all_companies:
-            # Added a condition to keep consume
-            # We check if the last transaction was successful
-            if self.live_utile < 4:
+            for market, companies in all_companies:
 
                 companies_count = len(companies)
 
-                #! -----Stage 1.2: Buying process starts here-----
+                #! -----Stage 2.2: Buying process starts here-----
 
                 # * In the specific case of a two company market, this block happens
                 if companies_count == 2:
@@ -95,13 +92,11 @@ class Consumer(mesa.Agent):
 
                     if self.wealth >= chosen_company.price:
 
-                        transaction_status = True
-
                         self.purchase(chosen_company)
 
-                        self.utile(chosen_company.price)
+                        self.assign_utile(chosen_company.price)
 
-                        self.update_memory(market)
+                        self.update_memory(market, chosen_company)
 
                     else:
                         #at any 'buying process' if a transaction fails, we should leave the consume process
@@ -139,7 +134,7 @@ class Consumer(mesa.Agent):
             f"agent {self.unique_id} purchased from company {company_seller.name} for {company_seller.price}$"
         )
 
-    def utile(self, price):
+    def assign_utile(self):
         """this method calculates and adds the utility of a good or service purchased from a company"""
 
         # * I'll use a simple method where the good doesn't matter and you're utility is given by you're live utile for now
