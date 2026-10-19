@@ -70,17 +70,17 @@ class Consumer(mesa.Agent):
     def consume(self):
         """this method mimics spending money on goods and services"""
 
-        #* -----Stage 1: Checking if we even want to begin consuming-----
+        # * -----Stage 1: Checking if we even want to begin consuming-----
         # Added a condition to keep consume
         while self.live_utile < 10:
             before_utile = self.live_utile
 
-            #* -----Stage 2: Choosing a market to start-----
+            # * -----Stage 2: Choosing a market to start-----
             all_companies = self.model.agents.select(agent_type=Company).groupby(
-            "market"
-                    )
-            
-        # Entered the market, found the companies
+                "market"
+            )
+
+            # Entered the market, found the companies
             for market, companies in all_companies:
 
                 companies_count = len(companies)
@@ -101,7 +101,7 @@ class Consumer(mesa.Agent):
                         self.update_memory(market, chosen_company)
 
                     else:
-                        #at any 'buying process' if a transaction fails, we should leave the consume process
+                        # at any 'buying process' if a transaction fails, we should leave the consume process
                         continue
 
                         #! -----Buying process ends here-----
@@ -131,7 +131,7 @@ class Consumer(mesa.Agent):
     def use_savings(self):
         """this method mimics the thought process of deciding how much to use savings"""
 
-        #todo fill this
+        # todo fill this
 
         pass
 
@@ -158,11 +158,20 @@ class Consumer(mesa.Agent):
 
         return self.live_utile
 
+
 class Company(mesa.Agent):
     """this class represents companies"""
 
     def __init__(
-        self, model, name, investment, tech_level, demand_curve, differ, market, marginal_cost
+        self,
+        model,
+        name,
+        investment,
+        tech_level,
+        demand_curve,
+        differ,
+        market,
+        marginal_cost,
     ):
         super().__init__(model)
 
@@ -238,7 +247,9 @@ class Company(mesa.Agent):
         """this method is for companies to find their optimal price based on Game Theory models"""
 
         all_companies = self.model.agents.select(agent_type=Company)
-        competitors = [a for a in all_companies if a != self and a.market == self.market]
+        competitors = [
+            a for a in all_companies if a != self and a.market == self.market
+        ]
 
         competitor = competitors[0]
 
@@ -351,7 +362,9 @@ class TheModel(mesa.Model):
                     tech_level=company["tech_level"],
                     demand_curve=market["demand_curve"],
                     differ=market["differentiation"],
-                    marginal_cost=int(sp.solve(market["supply_curve"], sp.Symbol('P'))[0])
+                    marginal_cost=int(
+                        sp.solve(market["supply_curve"], sp.Symbol("P"))[0]
+                    ),
                 )
 
                 self.agents.add(company)
