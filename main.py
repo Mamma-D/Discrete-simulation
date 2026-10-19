@@ -128,6 +128,13 @@ class Consumer(mesa.Agent):
 
         return chosen_company
 
+    def use_savings(self):
+        """this method mimics the thought process of deciding how much to use savings"""
+
+        #todo fill this
+
+        pass
+
     def purchase(self, company_seller):
         """this method mimics the purchase of a good or service from a company"""
 
