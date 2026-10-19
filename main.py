@@ -13,11 +13,11 @@ class Consumer(mesa.Agent):
 
     def __init__(self, model, salary, mpc):
         super().__init__(model)
-        self.wealth = salary
-        self.salary = salary
         self.mpc = mpc
-        self.essentials = round(250 + (self.salary * 0.25), 2)
         self.savings = 0
+        self.wealth = self.save(salary)
+        self.salary = salary
+        self.essentials = round(250 + (self.salary * 0.25), 2)
         self.positions = {}
         self.live_utile = 0
         self.memory = {}
@@ -28,7 +28,8 @@ class Consumer(mesa.Agent):
         self.consume()
         if self.model.time % 30 == 0:
             self.get_paid(self.salary)
-        self.balance_utile()
+        if self.model.time % 2 == 0:
+            self.balance_utile()
 
     def get_paid(self, salary):
         """this method adds the monthly payment to the consumer's wealth"""
@@ -72,6 +73,7 @@ class Consumer(mesa.Agent):
         #* -----Stage 1: Checking if we even want to begin consuming-----
         # Added a condition to keep consume
         while self.live_utile < 10:
+            before_utile = self.live_utile
 
             #* -----Stage 2: Choosing a market to start-----
             all_companies = self.model.agents.select(agent_type=Company).groupby(
@@ -94,7 +96,7 @@ class Consumer(mesa.Agent):
 
                         self.purchase(chosen_company)
 
-                        self.assign_utile(chosen_company.price)
+                        self.assign_utile()
 
                         self.update_memory(market, chosen_company)
 
@@ -103,6 +105,8 @@ class Consumer(mesa.Agent):
                         continue
 
                         #! -----Buying process ends here-----
+            if self.live_utile == before_utile:
+                break
 
     def duopoly_choose(self, companies):
         """this method is for deciding which company to choose for buying"""
@@ -137,14 +141,15 @@ class Consumer(mesa.Agent):
     def assign_utile(self):
         """this method calculates and adds the utility of a good or service purchased from a company"""
 
-        # * I'll use a simple method where the good doesn't matter and you're utility is given by you're live utile for now
-        x = sp.Symbol("x")
-        coefficient = 19 / (1 + (0.9 * sp.E ** (0.4 * x))) - 0.3
+        U_MAX = 10
+        RATE = 0.5
+        quality_factor = 1
 
-        utility_gotten = round(coefficient.subs(x, self.live_utile), 0)
+        increase = quality_factor * (RATE * (U_MAX - self.live_utile))
 
-        self.live_utile += int(utility_gotten)
+        self.live_utile += increase
 
+        return self.live_utile
 
 class Company(mesa.Agent):
     """this class represents companies"""
