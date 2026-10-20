@@ -57,7 +57,11 @@ class Consumer(mesa.Agent):
     def balance_utile(self):
         """this method mimics the decrease of utility over time"""
 
-        self.live_utile = 0
+        if self.live_utile >= 3.5:
+            self.live_utile -= 3.5
+
+        else:
+            self.live_utile = 0
 
         return self.live_utile
 
@@ -72,7 +76,7 @@ class Consumer(mesa.Agent):
 
         # * -----Stage 1: Checking if we even want to begin consuming-----
         # Added a condition to keep consume
-        while self.live_utile < 10:
+        while self.live_utile <= 10:
             before_utile = self.live_utile
 
             # * -----Stage 2: Choosing a market to start-----
@@ -92,21 +96,27 @@ class Consumer(mesa.Agent):
 
                     chosen_company = self.duopoly_choose(companies)
 
-                    if self.wealth >= chosen_company.price:
+                    if self.wealth < chosen_company.price:
 
-                        self.purchase(chosen_company)
-
-                        self.assign_utile()
-
-                        self.update_memory(market, chosen_company)
+                        if self.use_savings(chosen_company.price - self.wealth):
+                            self.buying_process(chosen_company, market)
 
                     else:
-                        # at any 'buying process' if a transaction fails, we should leave the consume process
-                        continue
+                        self.buying_process(chosen_company, market)                          
 
                         #! -----Buying process ends here-----
+
             if self.live_utile == before_utile:
                 break
+
+    def buying_process(self, chosen_company, market):
+        """this method mimics the process of buying a good or service from a company"""
+
+        self.purchase(chosen_company)
+
+        self.assign_utile()
+
+        self.update_memory(market, chosen_company)
 
     def duopoly_choose(self, companies):
         """this method is for deciding which company to choose for buying"""
@@ -128,12 +138,18 @@ class Consumer(mesa.Agent):
 
         return chosen_company
 
-    def use_savings(self):
+    def use_savings(self, needed):
         """this method mimics the thought process of deciding how much to use savings"""
-
         # todo fill this
 
-        pass
+        if self.savings > needed:
+
+            self.wealth += needed
+            self.savings -= needed
+
+            return True
+
+        return False
 
     def purchase(self, company_seller):
         """this method mimics the purchase of a good or service from a company"""
@@ -203,7 +219,7 @@ class Company(mesa.Agent):
         self.set_price()
 
     def calculate_cost(self, tech_level):
-        """this method calculates the total cost of a company based on its total cost function"""
+        """this method calculates the marginal cost based on the technology level of the company"""
 
         variable_cost_coeff = 1 - tech_level
 
@@ -264,7 +280,7 @@ class Company(mesa.Agent):
 
         if competitor.price < m_c:
 
-            return 0
+            return m_c
 
         if competitor.price > mono_price:
 
@@ -287,16 +303,23 @@ class Company(mesa.Agent):
         """this method calculates the monopoly price for a company"""
 
         P = sp.Symbol("P")
-        marginal_cost = self.marginal_cost
-        total_revenue = self.demand_curve * P
-        marginal_revenue = sp.diff(total_revenue, P)
+        Q = sp.Symbol("Q")
 
-        system_eq = sp.Eq(marginal_revenue, marginal_cost)
-        solution = sp.solve(system_eq, P)
+        inverse_demand = sp.solve(self.demand_curve, P)[0]
+        total_revenue = inverse_demand * Q
+        marginal_revenue = total_revenue.diff(Q)
+        equation = sp.Eq(marginal_revenue, self.marginal_cost)
 
-        mono_price = float(self.demand_curve.subs({P: solution[0]}))
+        solution = sp.solve(equation, Q)[0]
+        if solution <= 0:
+            raise ValueError(
+            f"{self.name} ({self.market}): marginal cost {self.marginal_cost} is above the "
+            f"highest price buyers will pay ({float(inverse_demand.subs(Q, 0))}), "
+            f"so there is no profitable output."
+            )
+        mono_price = round(float(inverse_demand.subs(Q, solution).evalf()), 2)
 
-        return round(mono_price, 2)
+        return mono_price
 
     def R_D(self):
         """this method is for companies to invest in research and development"""
