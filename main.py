@@ -203,11 +203,7 @@ class Company(mesa.Agent):
 
         self.transactions = pd.DataFrame({"consumer_id": [], "price": [], "time": []})
 
-        self.tech_level = tech_level
-
-        v_c, f_c = self.calculate_cost(tech_level)
-
-        self.total_cost_function = v_c * sp.Symbol("Q") + f_c
+        self.tech_level = 0
 
         self.marginal_cost = marginal_cost
 
@@ -217,15 +213,6 @@ class Company(mesa.Agent):
         """this method is for putting all actions a company does in a week"""
 
         self.set_price()
-
-    def calculate_cost(self, tech_level):
-        """this method calculates the marginal cost based on the technology level of the company"""
-
-        variable_cost_coeff = 1 - tech_level
-
-        fixed_cost = int((1 - tech_level) * 10000)
-
-        return (variable_cost_coeff, fixed_cost)
 
     def factor_mc(self, P):
         """this is a factor for determining a price. its core goal is to price based on the company's marginal cost."""
@@ -355,7 +342,29 @@ class Company(mesa.Agent):
 
         # todo Need to implement a way for companies to invest in R&D and how it affects their production and costs
 
-        pass
+        N = sp.Symbol("N")
+        RATE = 30 / ( 0.5 * N ** 2 + 5 )
+        COST = 1000
+
+
+        if self.wealth < COST:
+            return False
+
+        self.wealth -= COST
+        growth = round(RATE.subs(N, self.tech_level).evalf(), 2)
+
+        self.marginal_cost = self.marginal_cost - (growth/100 * self.marginal_cost)
+
+        self.tech_level += 1
+
+        return self.marginal_cost
+
+    def spend_on_RD(self):
+        """this method is for companies to decide whether to spend on R&D or not based on the potential benefits of investing"""
+        # todo companies forecast a simple demand curve based on historical transactions and decide whether to invest or not
+        
+
+
 
     # todo Need to work on factory class, maybe even abandon it for now, for simplicity
     class Factory(mesa.Agent):
