@@ -219,7 +219,7 @@ class Company(mesa.Agent):
 
         if len(companies) == 2:
 
-            price = self.find_duopoly_price()
+            price = self.calculate_duopoly_price()
             self.price = price
             return price
 
@@ -243,7 +243,7 @@ class Company(mesa.Agent):
             ignore_index=True,
         )
 
-    def find_duopoly_price(self):
+    def calculate_duopoly_price(self):
         """this method is for companies to find their optimal price based on Game Theory models"""
 
         all_companies = self.model.agents.select(agent_type=Company)
@@ -370,15 +370,15 @@ class TheModel(mesa.Model):
                 self.agents.add(company)
 
     def step(self):
-        # 1. Collect data first
 
-        # 2. Extract and run actions for Companies
+        # 1. Extract and run actions for Companies
         if self.time % 7 == 0 or self.time == 1:
             self.agents.select(agent_type=Company).shuffle_do("action")
 
-        # 3. Extract and run actions for Consumers
+        # 2. Extract and run actions for Consumers
         self.agents.select(agent_type=Consumer).shuffle_do("action")
 
+        # 3. Collect data
         self.datacollector.collect(self)
 
 
