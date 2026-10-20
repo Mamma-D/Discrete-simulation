@@ -227,17 +227,65 @@ class Company(mesa.Agent):
 
         return (variable_cost_coeff, fixed_cost)
 
-    def set_price(self):
-        """this method sets the price of a good or service based on the company's total cost and desired profit margin"""
+    def factor_mc(self, P):
+        """this is a factor for determining a price. its core goal is to price based on the company's marginal cost."""
+
+        result = P >= self.marginal_cost
+
+        return result
+
+    def factor_compet(self, P):
+        """this is a factor for determining a price. its core goal is to price based on competitors."""
 
         all_companies = self.model.agents.select(agent_type=Company)
         companies = [a for a in all_companies if a.market == self.market]
+        market_structure = 'mono' if len(companies) == 1 else 'duo' if len(companies) == 2 else 'pc'
 
-        if len(companies) == 2:
+        if market_structure == 'duo':
 
-            price = self.calculate_duopoly_price()
-            self.price = price
-            return price
+            result = P <= self.calculate_duopoly_price(companies)
+
+        if market_structure == 'mono':
+
+            result = P <= self.calculate_monopoly_price()
+
+        if market_structure == 'pc':
+
+            result = P <= self.marginal_cost
+
+        return result
+
+    def set_price(self):
+        """this method sets the price of a good or service based on the company's total cost and desired profit margin"""
+
+        P = sp.Symbol("P")
+
+        key_factors = {
+            1: self.factor_mc,
+            2: self.factor_compet
+        }
+
+        limits = {}
+
+        for prioritize, procedure in key_factors.items():
+            
+            inequation = procedure(P)
+
+            limits[prioritize] = inequation
+
+        feasible_range = sp.reduce_inequalities(limits, P)
+        
+        if feasible_range:
+
+            price = feasible_range.as_set().sup
+
+        else:
+
+            base = limits[1]
+
+            price = base.as_set().sup
+
+        return price
 
     def add_transaction(self, consumer):
         """this method adds the transaction to the company's wealth"""
@@ -264,45 +312,21 @@ class Company(mesa.Agent):
             ignore_index=True,
         )
 
-    def calculate_duopoly_price(self):
+    def calculate_duopoly_price(self, companies):
         """this method is for companies to find their optimal price based on Game Theory models"""
 
-        all_companies = self.model.agents.select(agent_type=Company)
         competitors = [
-            a for a in all_companies if a != self and a.market == self.market
+            a for a in companies if a != self and a.market == self.market
         ]
 
         competitor = competitors[0]
 
         m_c = self.marginal_cost
-        mono_price = self.calculate_monopoly_price()
         t = self.differ
 
-        # * These conditions must hold no matter what. i should somehow add them to the set_price method
-        if competitor.price == 0:
+        duopoly_price = round((competitor.price + t + m_c) / 2, 2)
 
-            return mono_price
-
-        if competitor.price < m_c:
-
-            return m_c
-
-        if competitor.price > mono_price:
-
-            return mono_price
-
-        else:
-
-            duopoly_price = round((competitor.price + t + m_c) / 2, 2)
-
-            if duopoly_price > mono_price:
-                return mono_price
-
-            elif duopoly_price < m_c:
-                return m_c
-
-            else:
-                return duopoly_price
+        return duopoly_price
 
     def calculate_monopoly_price(self):
         """this method calculates the monopoly price for a company"""
