@@ -242,7 +242,12 @@ class Company(mesa.Agent):
     def add_transaction(self, consumer):
         """this method adds the transaction to the company's wealth"""
 
+        # gaining the revenue from selling the good or service
         self.wealth += self.price
+        # paying the cost of producing the good or service
+        self.wealth -= self.marginal_cost
+
+        # adding the transaction to the company's transaction history
         self.transactions = pd.concat(
             [
                 self.transactions,
