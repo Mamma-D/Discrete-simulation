@@ -231,7 +231,13 @@ class Company(mesa.Agent):
 
         if market_structure == 'duo':
 
-            result = P <= self.calculate_duopoly_price(companies)
+            rival = [a for a in companies if a != self][0]
+
+            if not rival.price:   # rival hasn't priced yet, so no information: cap at monopoly price
+                result = P <= self.calculate_monopoly_price()
+
+            else:
+                result = P <= self.calculate_duopoly_price(companies)
 
         elif market_structure == 'mono':
 
@@ -243,6 +249,13 @@ class Company(mesa.Agent):
 
         return result
 
+    def factor_ceiling(self ,P):
+        """this is a factor for determining a price. its core goal is to keep the price from going infinite."""
+
+        result = P <= self.calculate_monopoly_price()
+
+        return result
+
     def set_price(self):
         """this method sets the price of a good or service based on the company's total cost and desired profit margin"""
 
@@ -250,7 +263,8 @@ class Company(mesa.Agent):
 
         key_factors = {
             1: self.factor_mc,
-            2: self.factor_compet
+            2: self.factor_compet,
+            3: self.factor_ceiling
         }
 
         limits = {}
@@ -263,7 +277,7 @@ class Company(mesa.Agent):
 
         feasible_range = sp.reduce_inequalities(list(limits.values()), P)
 
-        if feasible_range:
+        if feasible_range is not sp.false:
 
             price = float(feasible_range.as_set().sup)
 
