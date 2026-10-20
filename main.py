@@ -76,7 +76,7 @@ class Consumer(mesa.Agent):
 
         # * -----Stage 1: Checking if we even want to begin consuming-----
         # Added a condition to keep consume
-        while self.live_utile <= 10:
+        while self.live_utile <= 9:
             before_utile = self.live_utile
 
             # * -----Stage 2: Choosing a market to start-----
@@ -183,7 +183,6 @@ class Company(mesa.Agent):
         model,
         name,
         investment,
-        tech_level,
         demand_curve,
         differ,
         market,
@@ -225,7 +224,9 @@ class Company(mesa.Agent):
         """this is a factor for determining a price. its core goal is to price based on competitors."""
 
         all_companies = self.model.agents.select(agent_type=Company)
+
         companies = [a for a in all_companies if a.market == self.market]
+
         market_structure = 'mono' if len(companies) == 1 else 'duo' if len(companies) == 2 else 'pc'
 
         if market_structure == 'duo':
@@ -260,19 +261,21 @@ class Company(mesa.Agent):
 
             limits[prioritize] = inequation
 
-        feasible_range = sp.reduce_inequalities(limits, P)
+        feasible_range = sp.reduce_inequalities(list(limits.values()), P)
 
         if feasible_range:
 
-            price = feasible_range.as_set().sup
+            price = float(feasible_range.as_set().sup)
 
         else:
 
             base = limits[1]
 
-            price = base.as_set().sup
+            price = float(base.as_set().inf)
 
-        return price
+        self.price = round(price, 2)
+
+        return round(price, 2)
 
     def add_transaction(self, consumer):
         """this method adds the transaction to the company's wealth"""
@@ -329,9 +332,9 @@ class Company(mesa.Agent):
         solution = sp.solve(equation, Q)[0]
         if solution <= 0:
             raise ValueError(
-            f"{self.name} ({self.market}): marginal cost {self.marginal_cost} is above the "
-            f"highest price buyers will pay ({float(inverse_demand.subs(Q, 0))}), "
-            f"so there is no profitable output."
+                f"{self.name} ({self.market}): marginal cost {self.marginal_cost} is above the "
+                f"highest price buyers will pay ({float(inverse_demand.subs(Q, 0))}), "
+                f"so there is no profitable output."
             )
         mono_price = round(float(inverse_demand.subs(Q, solution).evalf()), 2)
 
@@ -362,8 +365,6 @@ class Company(mesa.Agent):
     def spend_on_RD(self):
         """this method is for companies to decide whether to spend on R&D or not based on the potential benefits of investing"""
         # todo companies forecast a simple demand curve based on historical transactions and decide whether to invest or not
-        
-
 
 
     # todo Need to work on factory class, maybe even abandon it for now, for simplicity
@@ -420,7 +421,6 @@ class TheModel(mesa.Model):
                     name=company["name"],
                     market=market["market"],
                     investment=company["investment"],
-                    tech_level=company["tech_level"],
                     demand_curve=market["demand_curve"],
                     differ=market["differentiation"],
                     marginal_cost=int(
