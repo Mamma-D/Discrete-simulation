@@ -232,11 +232,11 @@ class Company(mesa.Agent):
 
             result = P <= self.calculate_duopoly_price(companies)
 
-        if market_structure == 'mono':
+        elif market_structure == 'mono':
 
             result = P <= self.calculate_monopoly_price()
 
-        if market_structure == 'pc':
+        elif market_structure == 'pc':
 
             result = P <= self.marginal_cost
 
@@ -255,13 +255,13 @@ class Company(mesa.Agent):
         limits = {}
 
         for prioritize, procedure in key_factors.items():
-            
+
             inequation = procedure(P)
 
             limits[prioritize] = inequation
 
         feasible_range = sp.reduce_inequalities(limits, P)
-        
+
         if feasible_range:
 
             price = feasible_range.as_set().sup
