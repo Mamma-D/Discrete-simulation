@@ -140,7 +140,6 @@ class Consumer(mesa.Agent):
 
     def use_savings(self, needed):
         """this method mimics the thought process of deciding how much to use savings"""
-        # todo fill this
 
         if self.savings > needed:
 
@@ -249,7 +248,7 @@ class Company(mesa.Agent):
 
         return result
 
-    def factor_ceiling(self ,P):
+    def factor_ceiling(self, P):
         """this is a factor for determining a price. its core goal is to keep the price from going infinite."""
 
         result = P <= self.calculate_monopoly_price()
@@ -344,12 +343,12 @@ class Company(mesa.Agent):
         equation = sp.Eq(marginal_revenue, self.marginal_cost)
 
         solution = sp.solve(equation, Q)[0]
+
+        # no profitable output (marginal cost reached the highest price buyers will pay):
+        # the best a company can do is to price at its marginal cost, so it loses nothing per sale
         if solution <= 0:
-            raise ValueError(
-                f"{self.name} ({self.market}): marginal cost {self.marginal_cost} is above the "
-                f"highest price buyers will pay ({float(inverse_demand.subs(Q, 0))}), "
-                f"so there is no profitable output."
-            )
+            return self.marginal_cost
+
         mono_price = round(float(inverse_demand.subs(Q, solution).evalf()), 2)
 
         return mono_price
@@ -390,10 +389,12 @@ class Company(mesa.Agent):
 
 
 class TheModel(mesa.Model):
-    """this class is a initial model"""
+    """this class is an initial model"""
 
     def __init__(self, consumers, markets):
         super().__init__()
+
+        self.noises = {}   # {(individual, factor): (original value, time to give it back)}
 
         self.datacollector = mesa.DataCollector(
             agenttype_reporters={
@@ -444,6 +445,10 @@ class TheModel(mesa.Model):
 
                 self.agents.add(company)
 
+        # * Collecting initial data
+
+        self.datacollector.collect(self)
+
     def step(self):
 
         # 1. Extract and run actions for Companies
@@ -456,8 +461,22 @@ class TheModel(mesa.Model):
         # 3. Collect data
         self.datacollector.collect(self)
 
+        # 4. Give back the original values of the noises that are over
+        end_noise(self)
+
+        # 5. Deploy new noises
+        if self.time % 8 == 0:
+
+            company = self.agents.select(agent_type=Company).shuffle().select(at_most=1)
+            deploy_noise(self, company, "marginal_cost", magnitude=25, duration=6)
+
+            people = self.agents.select(agent_type=Consumer).shuffle().select(at_most=5)
+            deploy_noise(self, people, "essentials", magnitude=20, duration=6)
+
+
 
 def generate_number(category: dict, index: str):
+    """this function generates random number in given ranges"""
 
     while True:
         for proportion, ranges in category["indexes"][index].items():
@@ -477,3 +496,33 @@ def generate_number(category: dict, index: str):
 
                     for _ in range(this_many):
                         yield round(random.uniform(spec_range[0], spec_range[1]), 2)
+
+
+def deploy_noise(model, individuals, factor, magnitude=25, duration=5):
+
+    for individual in individuals:
+        before = getattr(individual, factor, None)
+
+        # nothing to shake, or it's still under a noise: wait until that one is over
+        if before is None or (individual, factor) in model.noises:
+            continue
+
+        amount = model.random.uniform(-magnitude, magnitude)
+        noise = (amount / 100) * (before)
+        after = noise + before
+        setattr(individual, factor, after)
+
+        model.noises[(individual, factor)] = (before, model.time + duration)
+
+    return None
+
+
+def end_noise(model):
+
+    for (individual, factor), (original, end_time) in list(model.noises.items()):
+
+        if model.time >= end_time:
+            setattr(individual, factor, original)
+            del model.noises[(individual, factor)]
+
+    return None
