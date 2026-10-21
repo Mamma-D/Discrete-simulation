@@ -89,7 +89,7 @@ class Consumer(mesa.Agent):
 
                 companies_count = len(companies)
 
-                #! -----Stage 2.2: Buying process starts here-----
+                # ! -----Stage 2.2: Buying process starts here-----
 
                 # * In the specific case of a two company market, this block happens
                 if companies_count == 2:
@@ -102,7 +102,7 @@ class Consumer(mesa.Agent):
                             self.buying_process(chosen_company, market)
 
                     else:
-                        self.buying_process(chosen_company, market)                          
+                        self.buying_process(chosen_company, market)
 
                         #! -----Buying process ends here-----
 
@@ -226,23 +226,27 @@ class Company(mesa.Agent):
 
         companies = [a for a in all_companies if a.market == self.market]
 
-        market_structure = 'mono' if len(companies) == 1 else 'duo' if len(companies) == 2 else 'pc'
+        market_structure = (
+            "mono" if len(companies) == 1 else "duo" if len(companies) == 2 else "pc"
+        )
 
-        if market_structure == 'duo':
+        if market_structure == "duo":
 
             rival = [a for a in companies if a != self][0]
 
-            if not rival.price:   # rival hasn't priced yet, so no information: cap at monopoly price
+            if (
+                not rival.price
+            ):  # rival hasn't priced yet, so no information: cap at monopoly price
                 result = P <= self.calculate_monopoly_price()
 
             else:
                 result = P <= self.calculate_duopoly_price(companies)
 
-        elif market_structure == 'mono':
+        elif market_structure == "mono":
 
             result = P <= self.calculate_monopoly_price()
 
-        elif market_structure == 'pc':
+        elif market_structure == "pc":
 
             result = P <= self.marginal_cost
 
@@ -260,11 +264,7 @@ class Company(mesa.Agent):
 
         P = sp.Symbol("P")
 
-        key_factors = {
-            1: self.factor_mc,
-            2: self.factor_compet,
-            3: self.factor_ceiling
-        }
+        key_factors = {1: self.factor_mc, 2: self.factor_compet, 3: self.factor_ceiling}
 
         limits = {}
 
@@ -318,9 +318,7 @@ class Company(mesa.Agent):
     def calculate_duopoly_price(self, companies):
         """this method is for companies to find their optimal price based on Game Theory models"""
 
-        competitors = [
-            a for a in companies if a != self and a.market == self.market
-        ]
+        competitors = [a for a in companies if a != self and a.market == self.market]
 
         competitor = competitors[0]
 
@@ -359,9 +357,8 @@ class Company(mesa.Agent):
         # todo Need to implement a way for companies to invest in R&D and how it affects their production and costs
 
         N = sp.Symbol("N")
-        RATE = 30 / ( 0.5 * N ** 2 + 5 )
+        RATE = 30 / (0.5 * N**2 + 5)
         COST = 1000
-
 
         if self.wealth < COST:
             return False
@@ -369,7 +366,7 @@ class Company(mesa.Agent):
         self.wealth -= COST
         growth = round(RATE.subs(N, self.tech_level).evalf(), 2)
 
-        self.marginal_cost = self.marginal_cost - (growth/100 * self.marginal_cost)
+        self.marginal_cost = self.marginal_cost - (growth / 100 * self.marginal_cost)
 
         self.tech_level += 1
 
@@ -378,7 +375,6 @@ class Company(mesa.Agent):
     def spend_on_RD(self):
         """this method is for companies to decide whether to spend on R&D or not based on the potential benefits of investing"""
         # todo companies forecast a simple demand curve based on historical transactions and decide whether to invest or not
-
 
     # todo Need to work on factory class, maybe even abandon it for now, for simplicity
     class Factory(mesa.Agent):
@@ -394,7 +390,9 @@ class TheModel(mesa.Model):
     def __init__(self, consumers, markets):
         super().__init__()
 
-        self.noises = {}   # {(individual, factor): (original value, time to give it back)}
+        self.noises = (
+            {}
+        )  # {(individual, factor): (original value, time to give it back)}
 
         self.datacollector = mesa.DataCollector(
             agenttype_reporters={
@@ -472,7 +470,6 @@ class TheModel(mesa.Model):
 
             people = self.agents.select(agent_type=Consumer).shuffle().select(at_most=5)
             deploy_noise(self, people, "essentials", magnitude=20, duration=6)
-
 
 
 def generate_number(category: dict, index: str):
