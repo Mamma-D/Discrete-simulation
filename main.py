@@ -402,8 +402,9 @@ class TheModel(mesa.Model):
                     "Salary": "salary",
                     "MPC": "mpc",
                     "LiveUtile": "live_utile",
+                    "Essentials": "essentials"
                 },
-                Company: {"Name": "name", "Wealth": "wealth", "Price": "price"},
+                Company: {"Name": "name", "Wealth": "wealth", "Price": "price", "MarginalCost": "marginal_cost"},
             }
         )
 
@@ -449,20 +450,10 @@ class TheModel(mesa.Model):
 
     def step(self):
 
-        # 1. Extract and run actions for Companies
-        if self.time % 7 == 0 or self.time == 1:
-            self.agents.select(agent_type=Company).shuffle_do("action")
-
-        # 2. Extract and run actions for Consumers
-        self.agents.select(agent_type=Consumer).shuffle_do("action")
-
-        # 3. Collect data
-        self.datacollector.collect(self)
-
-        # 4. Give back the original values of the noises that are over
+        # 0. Give back the original values of the noises that are over
         end_noise(self)
 
-        # 5. Deploy new noises
+        # 1. Deploy new noises
         if self.time % 8 == 0:
 
             company = self.agents.select(agent_type=Company).shuffle().select(at_most=1)
@@ -470,6 +461,16 @@ class TheModel(mesa.Model):
 
             people = self.agents.select(agent_type=Consumer).shuffle().select(at_most=5)
             deploy_noise(self, people, "essentials", magnitude=20, duration=6)
+
+        # 2. Extract and run actions for Companies
+        if self.time % 7 == 0 or self.time == 1:
+            self.agents.select(agent_type=Company).shuffle_do("action")
+
+        # 3. Extract and run actions for Consumers
+        self.agents.select(agent_type=Consumer).shuffle_do("action")
+
+        # 4. Collect data
+        self.datacollector.collect(self)
 
 
 def generate_number(category: dict, index: str):
