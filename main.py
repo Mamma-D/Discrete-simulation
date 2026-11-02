@@ -342,31 +342,6 @@ class Company(mesa.Agent):
 
         return mono_price
 
-    def R_D(self):
-        """this method is for companies to invest in research and development"""
-
-        # todo Need to implement a way for companies to invest in R&D and how it affects their production and costs
-
-        N = sp.Symbol("N")
-        RATE = 30 / (0.5 * N**2 + 5)
-        COST = 1000
-
-        if self.wealth < COST:
-            return False
-
-        self.wealth -= COST
-        growth = round(RATE.subs(N, self.tech_level).evalf(), 2)
-
-        self.marginal_cost = self.marginal_cost - (growth / 100 * self.marginal_cost)
-
-        self.tech_level += 1
-
-        return self.marginal_cost
-
-    def spend_on_RD(self):
-        """this method is for companies to decide whether to spend on R&D or not based on the potential benefits of investing"""
-        # todo companies forecast a simple demand curve based on historical transactions and decide whether to invest or not
-
 
 class TheModel(mesa.Model):
     """this class is an initial model"""
