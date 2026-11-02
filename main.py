@@ -34,15 +34,11 @@ class Consumer(mesa.Agent):
     def get_paid(self, salary):
         """this method adds the monthly payment to the consumer's wealth"""
 
-        print(f"{self.unique_id} got paid {salary}$")
-
         takehome_salary = salary - self.essentials
-        print(f"{self.unique_id} spent {self.essentials}$ on essentials")
 
         remaining_salary = self.save(takehome_salary)
 
         self.wealth += remaining_salary
-        print(f"{self.unique_id}'s wealth increased by {remaining_salary}$")
 
     def save(self, received_salary):
         """this method mimics saving money in an account"""
@@ -50,7 +46,6 @@ class Consumer(mesa.Agent):
         saving = round((1 - self.mpc) * received_salary, 2)
 
         self.savings += saving
-        print(f"{self.unique_id} saved {saving}$")
 
         return round((received_salary - saving), 2)
 
@@ -155,10 +150,6 @@ class Consumer(mesa.Agent):
 
         self.wealth = round(self.wealth - company_seller.price)
         company_seller.add_transaction(self)
-
-        print(
-            f"agent {self.unique_id} purchased from company {company_seller.name} for {company_seller.price}$"
-        )
 
     def assign_utile(self):
         """this method calculates and adds the utility of a good or service purchased from a company"""
@@ -375,13 +366,6 @@ class Company(mesa.Agent):
     def spend_on_RD(self):
         """this method is for companies to decide whether to spend on R&D or not based on the potential benefits of investing"""
         # todo companies forecast a simple demand curve based on historical transactions and decide whether to invest or not
-
-    # todo Need to work on factory class, maybe even abandon it for now, for simplicity
-    class Factory(mesa.Agent):
-        """this class represents manufacturing factories"""
-
-        def __init__(self, model):
-            super().__init__(model)
 
 
 class TheModel(mesa.Model):
