@@ -7,8 +7,8 @@ This project is a discrete-event economic simulation built from scratch using Ob
 
 The engine dynamically simulates **Hotelling's Linear City Model** to find pricing Nash Equilibriums, and introduces stochastic economic shocks to visualize how supply chain disruptions impact corporate profit margins and consumer wealth.
 
-![Simulation Dashboard](<img width="1897" height="871" alt="image" src="https://github.com/user-attachments/assets/d1e920f2-ffc7-45f3-a04c-94c3359b6853" />
-)
+Simulation Dashboard<img width="1897" height="871" alt="image" src="https://github.com/user-attachments/assets/37d84f0c-ef7a-49d1-9050-af9cbcf49fbb" />
+
 
 ## ⚙️ Core Mechanics
 
