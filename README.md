@@ -1,9 +1,16 @@
 # 📈 Oligopoly Market & Economic Simulator
 
+<div align="center">
+
+### 🚀 [**LAUNCH INTERACTIVE SIMULATION →**](https://discrete-simulation.streamlit.app/)
+
+*Explore the market, configure economic parameters, and run your own simulations.*
+
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://discrete-simulation.streamlit.app/)
 
-An Agent-Based Model (ABM) exploring Game Theory, Consumer Utility, and Supply Chain Volatility — powered by Python, Mesa, and Streamlit.
+</div>
 
+An Agent-Based Model (ABM) exploring Game Theory, Consumer Utility, and Supply Chain Volatility — powered by Python, Mesa, and Streamlit.
 ## 📌 Overview
 
 This project is a discrete-time economic simulation built using Object-Oriented Python. It models a closed market ecosystem where autonomous corporate agents compete for market share, while consumer agents make purchasing decisions based on utility, income, savings, and brand loyalty.
