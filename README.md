@@ -14,8 +14,7 @@ The project comes with an interactive **Streamlit dashboard**, allowing users to
 
 ## 🖥️ Simulation Dashboard
 
-![Simulation Dashboard](<img width="1919" height="872" alt="image" src="https://github.com/user-attachments/assets/64fc07f5-3dba-46b2-98d5-9c6d34ccd75d" />
-)
+![Simulation Dashboard](<img width="1919" height="872" alt="Screenshot 2026-11-03 115046" src="https://github.com/user-attachments/assets/fb1ef0e1-0145-4d2a-97ea-f99699bb13a5" />)
 
 ## ⚙️ Core Mechanics
 
