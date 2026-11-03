@@ -1,59 +1,97 @@
 # 📈 Oligopoly Market & Economic Simulator
 
-An Agent-Based Model (ABM) exploring Game Theory, Consumer Utility, and Supply Chain Volatility.
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://discrete-simulation.streamlit.app/)
 
-## 📌 Executive Summary
-This project is a discrete-event economic simulation built from scratch using Object-Oriented Python. It models a closed market ecosystem where autonomous corporate agents compete for market share, and consumer agents make purchasing decisions based on utility, savings rates, and brand loyalty. 
+An Agent-Based Model (ABM) exploring Game Theory, Consumer Utility, and Supply Chain Volatility — powered by Python, Mesa, and Streamlit.
 
-The engine dynamically simulates **Hotelling's Linear City Model** to find pricing Nash Equilibriums, and introduces stochastic economic shocks to visualize how supply chain disruptions impact corporate profit margins and consumer wealth.
+## 📌 Overview
 
-Simulation Dashboard<img width="1897" height="871" alt="image" src="https://github.com/user-attachments/assets/37d84f0c-ef7a-49d1-9050-af9cbcf49fbb" />
+This project is a discrete-time economic simulation built using Object-Oriented Python. It models a closed market ecosystem where autonomous corporate agents compete for market share, while consumer agents make purchasing decisions based on utility, income, savings, and brand loyalty.
 
+The simulation incorporates **Hotelling's Linear City Model** to represent consumer preferences and strategic competition between firms. It also introduces stochastic economic shocks to investigate how supply chain disruptions and changes in living costs affect corporate profitability and consumer wealth.
+
+The project comes with an interactive **Streamlit dashboard**, allowing users to configure simulation parameters, execute the model, and explore its results through interactive Plotly visualizations — without having to interact directly with the underlying Python code.
+
+## 🖥️ Simulation Dashboard
+
+![Simulation Dashboard](<img width="1919" height="872" alt="Screenshot 2026-11-03 115046" src="https://github.com/user-attachments/assets/fb1ef0e1-0145-4d2a-97ea-f99699bb13a5" />)
 
 ## ⚙️ Core Mechanics
 
-*   **🧠 Corporate AI (Game Theory):** Companies do not use hardcoded prices. They utilize symbolic mathematics (`sympy`) to calculate the intersection of marginal revenue and marginal cost, dynamically adjusting prices based on competitor behavior to find the Nash Equilibrium.
-*   **🛒 Autonomous Consumers:** Consumer agents earn salaries, deduct essential living costs, and save money based on their Marginal Propensity to Consume (MPC). They purchase goods by calculating maximum utility and brand proximity.
-*   **⚡ Stochastic Economic Shocks:** The engine randomly deploys macroeconomic noise (e.g., a sudden 25% spike in a company's marginal cost). The system observes how long it takes for the market to restabilize.
-*   **📊 Automated Analytics:** The simulation runs silently in the background, collecting thousands of data points. An independent analytics module (`analyze.py`) processes this data into a comprehensive, interactive HTML report using `pandas` and `plotly`.
+- **🧠 Corporate Agents (Game Theory):** Companies dynamically determine their selling prices based on marginal costs and competitive conditions. The pricing mechanism incorporates symbolic optimization for monopoly pricing and strategic price responses in duopoly markets.
 
-## 🛠️ Tech Stack & Architecture
+- **🛒 Autonomous Consumers:** Consumer agents receive salaries, account for essential living expenses, and allocate their income between consumption and savings according to their Marginal Propensity to Consume (MPC). Their purchasing decisions are influenced by affordability, utility, and brand proximity.
 
-*   **[Mesa](https://mesa.readthedocs.io/):** The core framework for Agent-Based Modeling (ABM), handling the time-step scheduler and data collection.
-*   **[SymPy](https://www.sympy.org/):** Used for algebraic equation solving to determine optimal monopoly and duopoly pricing.
-*   **[Pandas](https://pandas.pydata.org/):** Handles the heavy data manipulation, transaction logging, and shock-detection algorithms.
-*   **[Plotly](https://plotly.com/python/):** Generates the interactive, dark-mode financial dashboard (HTML report).
+- **⚡ Stochastic Economic Shocks:** The model periodically introduces random economic disturbances, including fluctuations in companies' marginal costs and consumers' essential living expenses. These shocks allow us to observe how the market responds to unexpected economic changes.
+
+- **📊 Interactive Analytics:** Simulation data is collected and processed using Pandas. An independent analytics module generates interactive Plotly visualizations, which are displayed directly in the Streamlit dashboard.
+
+## 🛠️ Tech Stack
+
+| Technology | Purpose |
+|---|---|
+| [Python](https://www.python.org/) | Core programming language and simulation logic |
+| [Mesa](https://mesa.readthedocs.io/) | Agent-Based Modeling framework |
+| [SymPy](https://www.sympy.org/) | Symbolic mathematics and pricing calculations |
+| [Pandas](https://pandas.pydata.org/) | Data collection, manipulation, and analysis |
+| [Plotly](https://plotly.com/python/) | Interactive data visualization |
+| [Streamlit](https://streamlit.io/) | Interactive dashboard and user interface |
 
 ## 🗂️ Project Structure
 
-*   `main.py` — The physics engine. Contains the `Consumer`, `Company`, and `TheModel` classes.
-*   `analyze.py` — The analytics engine. Reads the raw data generated by Mesa and compiles the interactive Plotly charts. (wrote by Claude's Sonnet 5.5)
-*   `notebook.ipynb` — The execution environment used to initialize the market parameters and run the simulation.
+```text
+Discrete-simulation/
+│
+├── dashboard.py          # Streamlit dashboard and user interface
+├── engine.py             # Simulation runner and market configuration
+├── main.py               # Core ABM: Consumer, Company, and TheModel
+├── analyze.py            # Analytics and Plotly visualization module
+├── configuration.ipynb   # Jupyter Notebook for manual configuration
+└── README.md
+```
 
 ## 🚀 Installation & Usage
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Mamma-D/Discrete-simulation
-   cd Discrete-simulation
-   ```
+### 1. Clone the repository
 
-2. **Install the required dependencies:**
-   ```bash
-   pip install mesa pandas plotly sympy
-   ```
+```bash
+git clone https://github.com/Mamma-D/Discrete-simulation.git
+cd Discrete-simulation
+```
 
-3. **Run the Simulation:**
-   Open the Jupyter Notebook (`configuration.ipynb`) or run the execution script to initialize the market and generate the `report.html` file.
-   ```python
-   # Example execution
-   instance = main.TheModel(consumers, markets=[shoe, soda])
-   instance.run_for(100)
-   build_report(consumer_df, company_df, companies, out_html="report.html")
-   ```
+### 2. Install dependencies
 
-4. **View the Results:**
-   Open `report.html` in any modern web browser to interact with the financial dashboard.
+```bash
+pip install mesa pandas plotly sympy streamlit
+```
+
+### 3. Launch the dashboard
+
+Run the following command from the project directory:
+
+```bash
+streamlit run dashboard.py
+```
+
+Streamlit will launch the application in your default web browser.
+
+### 4. Configure and run a simulation
+
+Inside the dashboard, you can:
+
+1. **Set the consumer population:** Choose the number of consumers participating in the market (5–500).
+2. **Set the simulation duration:** Choose the number of time steps (1–1000), where each tick represents one simulated day.
+3. **Run the simulation:** Start the engine and monitor its execution through the progress bar.
+4. **Explore the results:** Examine the generated interactive Plotly charts directly in the dashboard.
+
+No manual configuration or Jupyter Notebook execution is required for the standard dashboard workflow.
+
+## 📓 Alternative: Jupyter Notebook
+
+The `configuration.ipynb` notebook is also available for users who want to experiment with the underlying model, modify market parameters, or inspect simulation data directly.
 
 ## ⚠️ Disclaimer
-This project is an educational simulation built to practice Data Science, Operations Research, and Microeconomics concepts. It is **not** a financial forecasting or investment tool.
+
+This project is an educational simulation developed to explore concepts in Agent-Based Modeling, Game Theory, Operations Research, Microeconomics, and Data Science.
+
+Its assumptions and mechanisms are simplified representations of real-world economic behavior. The results should not be interpreted as financial forecasts or investment recommendations.
